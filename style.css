@@ -99,12 +99,21 @@ input[type="checkbox"] {
 }
 
 button {
+    appearance: none;
+    -webkit-appearance: none;
     padding: 2%;
+    color: #222222;
+    background-color: whitesmoke;
+    border: 2px solid dimgrey;
+    border-radius: 4px;
+    font: inherit;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: whitesmoke;
+    color: #222222;
+    background-color: #e2e2e2;
+    border-color: #444444;
 }
 
 input:focus {
