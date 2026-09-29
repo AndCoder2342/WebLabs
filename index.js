@@ -298,6 +298,50 @@ function redraw_canvas() {
     ctx.stroke();
 }
 
+function canvas_click(event) {
+    const canvas = document.getElementById('canvas');
+    const rect = canvas.getBoundingClientRect();
+
+    const canvas_x =
+        (event.clientX - rect.left) *
+        canvas.width / rect.width;
+
+    const canvas_y =
+        (event.clientY - rect.top) *
+        canvas.height / rect.height;
+
+    const r_element = document.querySelector(
+        'input[name="r"]:checked'
+    );
+
+    if (r_element === null) {
+        alert('Сначала выберите радиус R');
+        return;
+    }
+
+    const r = Number(r_element.value);
+
+    let x = (canvas_x - 250) / 160 * r;
+    let y = (250 - canvas_y) / 160 * r;
+
+    x = Number(x.toFixed(2));
+    y = Number(y.toFixed(2));
+
+    if (Object.is(x, -0)) {
+        x = 0;
+    }
+
+    if (Object.is(y, -0)) {
+        y = 0;
+    }
+
+    alert(
+        'Координаты точки:\n' +
+        'X = ' + x + '\n' +
+        'Y = ' + y
+    );
+}
+
 function format_date(timestamp) {
     return new Intl.DateTimeFormat('ru-RU', {
         dateStyle: 'medium',
@@ -382,3 +426,12 @@ redraw_canvas();
 
 render_results();
 redraw_canvas();
+
+
+const canvas =
+    document.getElementById('canvas');
+
+canvas.addEventListener(
+    'click',
+    canvas_click
+);
