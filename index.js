@@ -19,6 +19,7 @@ console.log('Happy developing ✨')
 function draw () {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // ctx.fillStyle = 'rgb(0 160 255)';
     ctx.fillStyle = 'rgb(0 160 255)';
@@ -166,11 +167,28 @@ function fix_r(event) {
             checkbox.checked = false;
         }
     }
+    redraw_canvas();
 }
 
 for (const checkbox of r_input) {
     checkbox.addEventListener('change', fix_r)
 }
+
+const x_input = document.querySelectorAll(
+    'input[name="x"]'
+);
+
+for (const radio of x_input) {
+    radio.addEventListener(
+        'change',
+        redraw_canvas
+    );
+}
+
+y_input.addEventListener(
+    'input',
+    redraw_canvas
+);
 
 function parse_y(value) {
     const normalized = value.trim().replace(',', '.');
@@ -225,6 +243,53 @@ function is_point_inside(x, y, r) {
     const in_circle = x <= 0 && y <= 0 && x * x + y * y <= (r / 2) ** 2;
 
     return in_triangle || in_rectangle || in_circle;
+}
+
+function redraw_canvas() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const x_element = document.querySelector(
+        'input[name="x"]:checked'
+    );
+
+    const r_element = document.querySelector(
+        'input[name="r"]:checked'
+    );
+
+    const y = parse_y(y_input.value);
+
+    draw();
+
+    if (r_element === null) {
+        return;
+    }
+
+    const r = Number(r_element.value);
+
+
+    if (x_element === null || y === null) {
+        return;
+    }
+
+    const x = Number(x_element.value);
+    const hit = is_point_inside(x, y, r);
+
+    const scale = 50;
+
+    const point_x = 250 + x * scale;
+    const point_y = 250 - y * scale;
+
+    ctx.beginPath();
+    ctx.arc(point_x, point_y, 7, 0, Math.PI * 2);
+
+    if (hit === true) {
+        ctx.fillStyle = 'green';
+    } else {
+        ctx.fillStyle = 'red';
+    }
+
+    ctx.fill();
 }
 
 function format_date(timestamp) {
@@ -305,6 +370,9 @@ function button_send_form(event) {
 }
 
 form.addEventListener('submit', button_send_form);
+save_results();
+render_results();
+redraw_canvas();
 
 render_results();
-
+redraw_canvas();

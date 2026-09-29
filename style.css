@@ -27,6 +27,10 @@
     max-width: 100%;
     height: auto;
     border: 1px solid white;
+    width: 500px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
 }
 
 .right-column {
@@ -34,7 +38,7 @@
     flex: 1 1 600px;
     flex-direction: column;
     gap: 20%;
-    max-width: 400px;
+    max-width: 500px;
 }
 
 .table-container {
