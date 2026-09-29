@@ -132,6 +132,8 @@ const results_body = document.getElementById('results_body');
 const r_input = document.querySelectorAll('input[name="r"]');
 
 const STORAGE_KEY = 'web_lab1_results';
+const FORM_STORAGE_KEY = 'web_lab1_form';
+
 let results = loadResults();
 
 function loadResults() {
@@ -155,6 +157,65 @@ function loadResults() {
 
 function save_results() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+}
+
+function save_form_state() {
+    const x_element = document.querySelector(
+        'input[name="x"]:checked'
+    );
+
+    const r_element = document.querySelector(
+        'input[name="r"]:checked'
+    );
+
+    const form_state = {
+        x: null,
+        y: y_input.value,
+        r: null
+    };
+
+    if (x_element !== null) {
+        form_state.x = x_element.value;
+    }
+
+    if (r_element !== null) {
+        form_state.r = r_element.value;
+    }
+
+    localStorage.setItem(
+        FORM_STORAGE_KEY,
+        JSON.stringify(form_state)
+    );
+}
+
+function load_form_state() {
+    const saved_state =
+        localStorage.getItem(FORM_STORAGE_KEY);
+
+    if (saved_state === null) {
+        return;
+    }
+
+    try {
+        const form_state =
+            JSON.parse(saved_state);
+
+        y_input.value = form_state.y || '';
+
+        for (const radio of x_input) {
+            radio.checked =
+                radio.value === form_state.x;
+        }
+
+        for (const checkbox of r_input) {
+            checkbox.checked =
+                checkbox.value === form_state.r;
+        }
+    } catch {
+        localStorage.removeItem(
+            FORM_STORAGE_KEY
+        );
+    }
 }
 
 function fix_r(event) {
@@ -420,10 +481,13 @@ function button_send_form(event) {
 }
 
 form.addEventListener('submit', button_send_form);
-save_results();
-render_results();
-redraw_canvas();
 
+form.addEventListener('change', save_form_state);
+
+y_input.addEventListener('input', save_form_state);
+
+
+load_form_state();
 render_results();
 redraw_canvas();
 
@@ -431,7 +495,4 @@ redraw_canvas();
 const canvas =
     document.getElementById('canvas');
 
-canvas.addEventListener(
-    'click',
-    canvas_click
-);
+canvas.addEventListener('click', canvas_click);
