@@ -38,6 +38,21 @@ function draw () {
     ctx.closePath();
     ctx.fill();
 
+    // ctx.beginPath();
+    // ctx.moveTo(250, 250);
+    // ctx.arc(250, 250, 80, 0, 2 * Math.PI, true);
+    // ctx.closePath();
+    // ctx.fill();
+
+    // ctx.beginPath();
+    // ctx.moveTo(250, 250);
+    // ctx.ellipse(250, 250, 160, 80, 0, 0, Math.PI * 2)
+    // ctx.closePath();
+    // ctx.fill();
+
+
+
+
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2;
 

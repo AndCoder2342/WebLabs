@@ -36,6 +36,15 @@
     gap: 20%;
     max-width: 400px;
 }
+
+.table-container {
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 2px solid black;
+}
+
 #results-table {
     width: 100%;
     border-collapse: collapse;
@@ -45,6 +54,13 @@
     border: 2px solid black;
     padding: 10px 14px;
     text-align: center;
+}
+
+#results-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: white;
 }
 
 #results-table > tbody > tr > td {
