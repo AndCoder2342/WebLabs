@@ -416,10 +416,68 @@ function create_cell(value) {
     return cell;
 }
 
+function compare_results_by_y(first_result, second_result) {
+    return first_result.y - second_result.y;
+}
+
+function change_result_y(event) {
+    const input = event.target;
+    const result_index = Number(input.dataset.index);
+    const new_y = parse_y(input.value);
+
+    if (new_y === null) {
+        alert('Y должен быть числом от −3 до 3');
+
+        input.value =
+            String(results[result_index].y);
+
+        return;
+    }
+
+    const result = results[result_index];
+
+    result.y = new_y;
+
+    result.hit = is_point_inside(
+        result.x,
+        result.y,
+        result.r
+    );
+
+    results.sort(compare_results_by_y);
+
+    save_results();
+    render_results();
+}
+
+function create_special_cell(value, result_index) {
+    const table_cell =
+        document.createElement('td');
+
+    const input =
+        document.createElement('input');
+
+    input.type = 'text';
+    // input.pattern = "/^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/";
+    input.className = 'result_y_input';
+    input.value = String(value);
+    input.dataset.index =
+        String(result_index);
+
+    input.addEventListener(
+        'change',
+        change_result_y
+    );
+
+    table_cell.appendChild(input);
+
+    return table_cell;
+}
+
 function render_results() {
     results_body.replaceChildren();
 
-    for (let i = results.length - 1; i >= 0; i--) {
+    for (let i = 0; i < results.length; i++) {
         const result = results[i];
         const row = document.createElement('tr');
 
@@ -434,7 +492,7 @@ function render_results() {
         }
 
         const x_cell = create_cell(result.x);
-        const y_cell = create_cell(result.y);
+        const y_cell = create_special_cell(result.y, i);
         const r_cell = create_cell(result.r);
         const result_cell = create_cell(result_text);
         const date_cell = create_cell(format_date(result.timestamp));
@@ -486,13 +544,22 @@ form.addEventListener('change', save_form_state);
 
 y_input.addEventListener('input', save_form_state);
 
+// y_special_input.addEventListener('input', save_form_state);
+
 
 load_form_state();
+
+results.sort(compare_results_by_y);
+
 render_results();
 redraw_canvas();
 
 
-const canvas =
-    document.getElementById('canvas');
+const canvas = document.getElementById('canvas');
 
 canvas.addEventListener('click', canvas_click);
+
+// Сделать ячейки в таблице результатов инпутами. И сортировать результаты учитывая инпуты.
+
+
+// Доделать и отправитьь завтра до 12

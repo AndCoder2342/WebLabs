@@ -28,8 +28,6 @@
     height: auto;
     border: 1px solid white;
     width: 500px;
-    max-width: 100%;
-    height: auto;
     aspect-ratio: 1 / 1;
 }
 
@@ -109,6 +107,24 @@ button {
     font: inherit;
     cursor: pointer;
 }
+.result_y_input {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 8px;
+    color: inherit;
+    font: inherit;
+    text-align: center;
+    background-color: transparent;
+    border: 1px solid transparent;
+
+}
+
+.result_y_input:focus {
+    background-color: white;
+    border-color: #00a0ff;
+    outline: 2px solid #00a0ff;
+}
 
 button:hover {
     color: #222222;
@@ -116,15 +132,15 @@ button:hover {
     border-color: #444444;
 }
 
-input:focus {
+#form input:focus {
     outline: 2px solid #00A0FFFF;
 }
 
-input[type="text"]:invalid {
+#form input[type="text"]:invalid {
     border: 2px solid orangered;
 }
 
-input[type="text"]:valid {
+#form input[type="text"]:valid {
     border: 2px solid green;
 }
 
