@@ -261,27 +261,29 @@ function redraw_canvas() {
 
     draw();
 
-    if (r_element === null) {
-        return;
-    }
-
-    const r = Number(r_element.value);
-
-
-    if (x_element === null || y === null) {
+    if (
+        x_element === null ||
+        r_element === null ||
+        y === null
+    ) {
         return;
     }
 
     const x = Number(x_element.value);
+    const r = Number(r_element.value);
     const hit = is_point_inside(x, y, r);
 
-    const scale = 50;
-
-    const point_x = 250 + x * scale;
-    const point_y = 250 - y * scale;
+    const point_x = 250 + x / r * 160;
+    const point_y = 250 - y / r * 160;
 
     ctx.beginPath();
-    ctx.arc(point_x, point_y, 7, 0, Math.PI * 2);
+    ctx.arc(
+        point_x,
+        point_y,
+        7,
+        0,
+        Math.PI * 2
+    );
 
     if (hit === true) {
         ctx.fillStyle = 'green';
@@ -290,6 +292,10 @@ function redraw_canvas() {
     }
 
     ctx.fill();
+
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 1;
+    ctx.stroke();
 }
 
 function format_date(timestamp) {
