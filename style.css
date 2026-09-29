@@ -1,0 +1,113 @@
+.cap {
+    display: flex;
+    flex-direction: row;
+    font-family: serif;
+    font-size: 300%;
+    color: #00A0FFFF;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3%;
+    padding: 2%;
+}
+
+.workspace {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3%;
+    padding: 2%;
+}
+
+
+
+#canvas {
+    flex: 0 0 500px;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid white;
+}
+
+.right-column {
+    display: flex;
+    flex: 1 1 600px;
+    flex-direction: column;
+    gap: 20%;
+    max-width: 400px;
+}
+#results-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#results-table > thead > tr > th {
+    border: 2px solid black;
+    padding: 10px 14px;
+    text-align: center;
+}
+
+#results-table > tbody > tr > td {
+    border: 2px solid black;
+    padding: 10px 14px;
+    text-align: center;
+}
+
+#results-table > tbody > tr:hover {
+    background-color: #dceeff;
+}
+
+
+body {
+    color: dimgrey;
+    font-family: Arial, sans-serif;
+}
+
+header > h1 {
+    margin-top: 0;
+}
+
+input[type="text"] {
+    box-sizing: border-box;
+    margin: 1%;
+    padding: 2%;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    margin: 1%;
+}
+
+button {
+    padding: 2%;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: whitesmoke;
+}
+
+input:focus {
+    outline: 2px solid #00A0FFFF;
+}
+
+input[type="text"]:invalid {
+    border: 2px solid orangered;
+}
+
+input[type="text"]:valid {
+    border: 2px solid green;
+}
+
+.results h2::before {
+    content: "◆ ";
+    color: #00A0FFFF;
+}
+
+#results-table > tbody > tr.hit {
+    color: green;
+}
+
+#results-table > tbody > tr.miss {
+    color: orangered;
+}

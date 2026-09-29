@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>Лабараторная 1</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js" defer></script>
+</head>
+<body>
+  <header>
+      <h1 class="cap">Сафин Илья Дмитриевич P3106 Вариант: 501526</h1>
+  </header>
+  <main>
+      <div class="workspace">
+          <canvas id="canvas" width="500" height="500"></canvas>
+
+          <div class="right-column">
+              <form id="form">
+                  <fieldset>
+                      <legend>Координата Х</legend>
+
+                      <label><input type="radio" name="x" value="-2" required>-2</label>
+                      <label><input type="radio" name="x" value="-1.5" required>-1.5</label>
+                      <label><input type="radio" name="x" value="-1" required>-1</label>
+                      <label><input type="radio" name="x" value="-0.5" required>-0.5</label>
+                      <label><input type="radio" name="x" value="0" required>0</label>
+                      <label><input type="radio" name="x" value="0.5" required>0.5</label>
+                      <label><input type="radio" name="x" value="1" required>1</label>
+                      <label><input type="radio" name="x" value="1.5" required>1.5</label>
+                      <label><input type="radio" name="x" value="2" required>2</label>
+
+                  </fieldset>
+
+                  <label for="y_input">Координата Y</label>
+                  <input id="y_input" type="text" required inputmode="decimal"     pattern="[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)" placeholder="от −3 до 3">
+
+                  <fieldset>
+                      <legend>Радиус R</legend>
+                      <label><input type="checkbox" name="r" value="1">1</label>
+                      <label><input type="checkbox" name="r" value="1.5">1.5</label>
+                      <label><input type="checkbox" name="r" value="2">2</label>
+                      <label><input type="checkbox" name="r" value="2.5">2.5</label>
+                      <label><input type="checkbox" name="r" value="3">3</label>
+                  </fieldset>
+                  <p id="form_error" role="alert"></p>
+                  <button type="submit">Проверить точку</button>
+              </form>
+              <section class="results">
+                  <h2>Результаты проверок</h2>
+
+                  <div class="table-container">
+                      <table id="results-table">
+                          <thead>
+                          <tr>
+                              <th scope="col">X</th>
+                              <th scope="col">Y</th>
+                              <th scope="col">R</th>
+                              <th scope="col">Результат</th>
+                              <th scope="col">Дата и время</th>
+                          </tr>
+                          </thead>
+
+                          <tbody id="results_body">
+                          </tbody>
+                      </table>
+                  </div>
+              </section>
+          </div>
+      </div>
+  </main>
+  <footer>
+      <p>2026 год</p>
+  </footer>
+</body>
+</html>
