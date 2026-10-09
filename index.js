@@ -1,21 +1,3 @@
-console.log('Happy developing ✨')
-// function draw () {
-//     const canvas = document.getElementById('canvas');
-//     const ctx = canvas.getContext('2d');
-//
-//     let y = 0
-//     for (let i = 0; i < 40; i++) {
-//         let x = 0
-//         for (let j = 0; j < 40; j++) {
-//             ctx.fillStyle = `rgb(${Math.floor(256 - (256/40)*j)} ` + `${Math.floor(256 - (256/40)*i)} 0)`;
-//             ctx.fillRect(x, y, 10, 10)
-//             x += 10
-//         }
-//         y += 10
-//     }
-// }
-// draw()
-
 function draw () {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -130,6 +112,12 @@ const y_input = document.getElementById('y_input');
 const form_error = document.getElementById('form_error');
 const results_body = document.getElementById('results_body');
 const r_input = document.querySelectorAll('input[name="r"]');
+
+const sort_param = document.getElementById('sort_param');
+const sort_option = document.getElementById('sort_option');
+
+const all_points = document.getElementById('show_all_points');
+const sort_points_param = document.getElementById('sort_points_param');
 
 const STORAGE_KEY = 'web_lab1_results';
 const FORM_STORAGE_KEY = 'web_lab1_form';
@@ -359,6 +347,45 @@ function redraw_canvas() {
     ctx.stroke();
 }
 
+
+function drawDots(result) {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const x = result.x;
+    const y = result.y;
+    const r = result.r;
+    const hit = result.hit;
+
+
+    draw();
+
+
+    const point_x = 250 + x / r * 160;
+    const point_y = 250 - y / r * 160;
+
+    ctx.beginPath();
+    ctx.arc(
+        point_x,
+        point_y,
+        7,
+        0,
+        Math.PI * 2
+    );
+
+    if (hit === true) {
+        ctx.fillStyle = 'green';
+    } else {
+        ctx.fillStyle = 'red';
+    }
+
+    ctx.fill();
+
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+}
+
 function canvas_click(event) {
     const canvas = document.getElementById('canvas');
     const rect = canvas.getBoundingClientRect();
@@ -416,9 +443,125 @@ function create_cell(value) {
     return cell;
 }
 
-function compare_results_by_y(first_result, second_result) {
-    return first_result.y - second_result.y;
+
+// function compare_results(param, option) {
+//     switch (param) {
+//         case 'x': if (option === '>'){
+//             return
+//         } else {return  sort(first_result.x - second_result.x);}
+//         case 'y': return sort(first_result.y - second_result.y);
+//         case 'r': return sort(first_result.r - second_result.r);
+//     }
+// }
+
+function compare_results(param, option) {
+    return function (first_result, second_result) {
+        let difference;
+
+        switch (param) {
+            case 'x':
+                difference =
+                    first_result.x - second_result.x;
+                break;
+
+            case 'y':
+                difference =
+                    first_result.y - second_result.y;
+                break;
+
+            case 'r':
+                difference =
+                    first_result.r - second_result.r;
+                break;
+
+            case 'date':
+                difference =
+                    first_result.timestamp -
+                    second_result.timestamp;
+                break;
+
+            default:
+                return 0;
+        }
+
+        if (option === '>') {
+            return difference;
+        }
+
+        return -difference;
+    };
 }
+
+function draw_all_points(value) {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+
+        const x = result.x;
+        const y = result.y;
+        const r = result.r;
+        const hit = result.hit;
+        let should_draw = false;
+
+
+
+        const point_x = 250 + x / r * 160;
+        const point_y = 250 - y / r * 160;
+
+        switch (value) {
+            case 'in': if (hit === true) { should_draw = true; } break;
+
+            case 'out': if (hit === false) { should_draw = true; } break;
+
+            case 'all': should_draw = true; break;
+        }
+
+        ctx.beginPath();
+        ctx.arc(
+            point_x,
+            point_y,
+            7,
+            0,
+            Math.PI * 2
+        );
+
+        // if (hit === true && value === 'in') {
+        //     ctx.fillStyle = 'green';
+        //     ctx.fill();
+        //     continue;
+        //
+        // }
+        // else if (hit === false && value === 'out') {
+        //     ctx.fillStyle = 'red';
+        //     ctx.fill();
+        //     continue;
+        // }
+        // else {
+
+        //
+        //     ctx.fill();
+        //     continue;
+        // }
+        if (hit === true ) {
+            ctx.fillStyle = 'green';
+        } else {
+            ctx.fillStyle = 'red';
+        }
+        if (!should_draw) {
+            continue;
+        }
+        ctx.fill();
+
+
+
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+}
+
 
 function change_result_y(event) {
     const input = event.target;
@@ -444,7 +587,9 @@ function change_result_y(event) {
         result.r
     );
 
-    results.sort(compare_results_by_y);
+    // results.sort(compare_results_by_y);
+    results.sort(compare_results(String(sort_param.value), String(sort_option.value)))
+
 
     save_results();
     render_results();
@@ -458,7 +603,6 @@ function create_special_cell(value, result_index) {
         document.createElement('input');
 
     input.type = 'text';
-    // input.pattern = "/^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/";
     input.className = 'result_y_input';
     input.value = String(value);
     input.dataset.index =
@@ -480,6 +624,14 @@ function render_results() {
     for (let i = 0; i < results.length; i++) {
         const result = results[i];
         const row = document.createElement('tr');
+
+        row.addEventListener('mouseenter', () => {
+            drawDots(result);
+        })
+
+        row.addEventListener('mouseleave', () => {
+            drawDots(result);
+        })
 
         let result_text;
 
@@ -506,6 +658,7 @@ function render_results() {
         results_body.appendChild(row);
     }
 }
+
 function button_send_form(event) {
     event.preventDefault();
 
@@ -545,11 +698,44 @@ form.addEventListener('change', save_form_state);
 y_input.addEventListener('input', save_form_state);
 
 // y_special_input.addEventListener('input', save_form_state);
-
+// form.addEventListener('click', draw_dots)
 
 load_form_state();
 
-results.sort(compare_results_by_y);
+
+
+// const title = document.getElementById('variant');
+
+sort_param.addEventListener('change', () => {
+    results.sort(compare_results(String(sort_param.value), String(sort_option.value)));
+    render_results();
+});
+
+sort_option.addEventListener('change', () => {
+    results.sort(compare_results(String(sort_param.value), String(sort_option.value)));
+    render_results();
+});
+
+all_points.addEventListener('change', () => {
+    if (all_points.checked) {
+        draw()
+        draw_all_points(sort_points_param.value);
+    }
+    else {
+        redraw_canvas()
+    }
+})
+
+sort_points_param.addEventListener('change', () => {
+    if (all_points.checked) {
+        draw()
+        draw_all_points(sort_points_param.value);
+    }
+    else {
+        redraw_canvas()
+    }
+})
+
 
 render_results();
 redraw_canvas();
@@ -557,9 +743,3 @@ redraw_canvas();
 
 const canvas = document.getElementById('canvas');
 
-canvas.addEventListener('click', canvas_click);
-
-// Сделать ячейки в таблице результатов инпутами. И сортировать результаты учитывая инпуты.
-
-
-// Доделать и отправитьь завтра до 12

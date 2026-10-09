@@ -9,7 +9,7 @@
 </head>
 <body>
   <header>
-      <h1 class="cap">Сафин Илья Дмитриевич P3106 Вариант: 501526</h1>
+      <h1 class="cap" id="variant">Сафин Илья Дмитриевич P3106 Вариант: 501526</h1>
   </header>
   <main>
       <div class="workspace">
@@ -44,10 +44,36 @@
                       <label><input type="checkbox" name="r" value="3">3</label>
                   </fieldset>
                   <p id="form_error" role="alert"></p>
-                  <button type="submit">Проверить точку</button>
+                  <div id="button-row">
+                      <button type="submit">Проверить точку</button>
+                      <label><input id="show_all_points" type="checkbox" value="1">показать точки</label>
+                      <select name="points_param" id="sort_points_param">
+                          <option value="in">Попадания</option>
+                          <option value="out">Промахи</option>
+                          <option value="all">Все</option>
+                          </select>
+
+                  </div>
+
+                  <div id="sort">
+                      <h2>Результаты проверок</h2>
+                      <select name="param" id="sort_param">
+                          <option value="x">По X</option>
+                          <option value="y">По Y</option>
+                          <option value="r">По R</option>
+                          <option value="date">По Дате</option>
+                      </select>
+                      <select name="option" id="sort_option">
+                          <option value=">">По Возрастанию</option>
+                          <option value="<">По Убыванию</option>
+
+                      </select>
+                  </div>
+
+
               </form>
               <section class="results">
-                  <h2>Результаты проверок</h2>
+
 
                   <div class="table-container">
                       <table id="results-table">

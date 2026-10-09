@@ -26,9 +26,15 @@
     flex: 0 0 500px;
     max-width: 100%;
     height: auto;
-    border: 1px solid white;
+    border: 1px solid transparent;
     width: 500px;
     aspect-ratio: 1 / 1;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 15px;
+}
+
+#canvas:hover {
+    border: 1px solid #00A0FFFF;
 }
 
 .right-column {
@@ -45,6 +51,8 @@
     overflow-y: auto;
     overflow-x: auto;
     border: 2px solid black;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 5px;
 }
 
 #results-table {
@@ -144,7 +152,7 @@ button:hover {
     border: 2px solid green;
 }
 
-.results h2::before {
+#sort h2::before {
     content: "◆ ";
     color: #00A0FFFF;
 }
@@ -156,3 +164,17 @@ button:hover {
 #results-table > tbody > tr.miss {
     color: orangered;
 }
+
+#sort {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2%;
+}
+
+#sort-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
