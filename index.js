@@ -130,7 +130,6 @@ const y_input = document.getElementById('y_input');
 const form_error = document.getElementById('form_error');
 const results_body = document.getElementById('results_body');
 const r_input = document.querySelectorAll('input[name="r"]');
-
 const STORAGE_KEY = 'web_lab1_results';
 const FORM_STORAGE_KEY = 'web_lab1_form';
 
@@ -508,7 +507,6 @@ function render_results() {
 }
 function button_send_form(event) {
     event.preventDefault();
-
     form_error.textContent = '';
 
     try {
@@ -544,7 +542,6 @@ form.addEventListener('change', save_form_state);
 
 y_input.addEventListener('input', save_form_state);
 
-// y_special_input.addEventListener('input', save_form_state);
 
 
 load_form_state();
@@ -558,8 +555,3 @@ redraw_canvas();
 const canvas = document.getElementById('canvas');
 
 canvas.addEventListener('click', canvas_click);
-
-// Сделать ячейки в таблице результатов инпутами. И сортировать результаты учитывая инпуты.
-
-
-// Доделать и отправитьь завтра до 12

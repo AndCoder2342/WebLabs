@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="style.css">
     <script src="index.js" defer></script>
 </head>
-<body>
+<body id="body">
   <header>
-      <h1 class="cap">Сафин Илья Дмитриевич P3106 Вариант: 501526</h1>
+      <h1 class="cap">Сафин Илья Дмитриевич P3206 Вариант: 501526</h1>
   </header>
   <main>
       <div class="workspace">
@@ -33,7 +33,7 @@
                   </fieldset>
 
                   <label for="y_input">Координата Y</label>
-                  <input id="y_input" type="text" required inputmode="decimal" pattern="[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)" placeholder="от −3 до 3">
+                  <input id="y_input" type="text" required inputmode="decimal" pattern="[+\-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)" placeholder="от −3 до 3">
 
                   <fieldset>
                       <legend>Радиус R</legend>
@@ -44,7 +44,12 @@
                       <label><input type="checkbox" name="r" value="3">3</label>
                   </fieldset>
                   <p id="form_error" role="alert"></p>
-                  <button type="submit">Проверить точку</button>
+
+                  <div id="buttons">
+                      <button type="submit">Проверить точку</button>
+                  </div>
+
+
               </form>
               <section class="results">
                   <h2>Результаты проверок</h2>
