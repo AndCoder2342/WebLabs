@@ -9,7 +9,7 @@
 </head>
 <body>
   <header>
-      <h1 class="cap" id="variant">Сафин Илья Дмитриевич P3106 Вариант: 501526</h1>
+      <h1 class="cap" id="variant">Сафин Илья Дмитриевич P3206 Вариант: 501526</h1>
   </header>
   <main>
       <div class="workspace">
@@ -31,9 +31,10 @@
                       <label><input type="radio" name="x" value="2" required>2</label>
 
                   </fieldset>
-
-                  <label for="y_input">Координата Y</label>
-                  <input id="y_input" type="text" required inputmode="decimal" pattern="[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)" placeholder="от −3 до 3">
+                  <div class="cord-y">
+                      <label for="y_input">Координата Y</label>
+                      <input id="y_input" type="text" required inputmode="decimal" pattern="[\-+]?(?:\d+(?:[.,]\d+)?|[.,]\d+)" placeholder="от −3 до 3">
+                  </div>
 
                   <fieldset>
                       <legend>Радиус R</legend>
@@ -50,7 +51,7 @@
                       <select name="points_param" id="sort_points_param">
                           <option value="in">Попадания</option>
                           <option value="out">Промахи</option>
-                          <option value="all">Все</option>
+                          <option value="all" selected>Все</option>
                           </select>
 
                   </div>
@@ -61,11 +62,11 @@
                           <option value="x">По X</option>
                           <option value="y">По Y</option>
                           <option value="r">По R</option>
-                          <option value="date">По Дате</option>
+                          <option value="date" selected>По Дате</option>
                       </select>
                       <select name="option" id="sort_option">
                           <option value=">">По Возрастанию</option>
-                          <option value="<">По Убыванию</option>
+                          <option value="<" selected>По Убыванию</option>
 
                       </select>
                   </div>
