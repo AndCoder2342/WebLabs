@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "css:build": "sass --no-source-map style.scss style.css",
+    "css:watch": "sass --watch --no-source-map style.scss:style.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "sass": "^1.105.1"
+  }
 }
