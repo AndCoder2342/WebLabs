@@ -1,31 +1,12 @@
-console.log('Happy developing ✨')
-// function draw () {
-//     const canvas = document.getElementById('canvas');
-//     const ctx = canvas.getContext('2d');
-//
-//     let y = 0
-//     for (let i = 0; i < 40; i++) {
-//         let x = 0
-//         for (let j = 0; j < 40; j++) {
-//             ctx.fillStyle = `rgb(${Math.floor(256 - (256/40)*j)} ` + `${Math.floor(256 - (256/40)*i)} 0)`;
-//             ctx.fillRect(x, y, 10, 10)
-//             x += 10
-//         }
-//         y += 10
-//     }
-// }
-// draw()
-
-function draw () {
+function draw() {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // ctx.fillStyle = 'rgb(0 160 255)';
     ctx.fillStyle = 'rgb(0 160 255)';
     ctx.fillRect(250, 250, 160, 160);
 
     ctx.beginPath();
+    ctx.setLineDash([]);
     ctx.moveTo(250, 250);
     ctx.lineTo(410, 250);
     ctx.lineTo(250, 170);
@@ -34,25 +15,10 @@ function draw () {
 
     ctx.beginPath();
     ctx.moveTo(170, 250);
-    ctx.arc(250, 250, 80, Math.PI, Math.PI / 2, true)
+    ctx.arc(250, 250, 80, Math.PI, Math.PI / 2, true);
     ctx.lineTo(250, 250);
     ctx.closePath();
     ctx.fill();
-
-    // ctx.beginPath();
-    // ctx.moveTo(250, 250);
-    // ctx.arc(250, 250, 80, 0, 2 * Math.PI, true);
-    // ctx.closePath();
-    // ctx.fill();
-
-    // ctx.beginPath();
-    // ctx.moveTo(250, 250);
-    // ctx.ellipse(250, 250, 160, 80, 0, 0, Math.PI * 2)
-    // ctx.closePath();
-    // ctx.fill();
-
-
-
 
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2;
@@ -122,18 +88,30 @@ function draw () {
     ctx.fillText('x', 455, 240);
     ctx.fillText('y', 260, 45);
 
+    ctx.fillText('x: ', 20, 460);
+    ctx.fillText('y: ', 20, 480);
+
 }
-draw();
 
 const form = document.getElementById('form');
 const y_input = document.getElementById('y_input');
 const form_error = document.getElementById('form_error');
 const results_body = document.getElementById('results_body');
 const r_input = document.querySelectorAll('input[name="r"]');
+
+const sort_param = document.getElementById('sort_param');
+const sort_option = document.getElementById('sort_option');
+
+const all_points = document.getElementById('show_all_points');
+const sort_points_param = document.getElementById('sort_points_param');
+
 const STORAGE_KEY = 'web_lab1_results';
 const FORM_STORAGE_KEY = 'web_lab1_form';
 
 let results = loadResults();
+let highlighted_result = null;
+let canvas_position = null;
+let canvas_hover = false;
 
 function loadResults() {
     try {
@@ -219,6 +197,7 @@ function load_form_state() {
 
 function fix_r(event) {
     if (event.target.checked === false) {
+        redraw_canvas();
         return;
     }
 
@@ -309,53 +288,61 @@ function redraw_canvas() {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    const x_element = document.querySelector(
-        'input[name="x"]:checked'
-    );
-
-    const r_element = document.querySelector(
-        'input[name="r"]:checked'
-    );
-
-    const y = parse_y(y_input.value);
-
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     draw();
 
-    if (
-        x_element === null ||
-        r_element === null ||
-        y === null
-    ) {
-        return;
+    if (all_points.checked) {
+        draw_all_points(sort_points_param.value);
     }
 
-    const x = Number(x_element.value);
-    const r = Number(r_element.value);
-    const hit = is_point_inside(x, y, r);
+    let values = null;
 
-    const point_x = 250 + x / r * 160;
-    const point_y = 250 - y / r * 160;
+    try {
+        values = get_form_values();
+    } catch {
+        values = null;
+    }
 
+    if (values !== null) {
+        values.hit = is_point_inside(
+            values.x,
+            values.y,
+            values.r
+        );
+
+        drawDots(values);
+    }
+
+    if (highlighted_result !== null) {
+        drawDots(highlighted_result, 10);
+    }
+
+    draw_target();
+}
+
+function drawDots(result, radius = 7) {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const point_x = 250 + result.x / result.r * 160;
+    const point_y = 250 - result.y / result.r * 160;
+
+    ctx.save();
+    ctx.setLineDash([]);
     ctx.beginPath();
-    ctx.arc(
-        point_x,
-        point_y,
-        7,
-        0,
-        Math.PI * 2
-    );
+    ctx.arc(point_x, point_y, radius, 0, Math.PI * 2);
 
-    if (hit === true) {
+    if (result.hit === true) {
         ctx.fillStyle = 'green';
     } else {
         ctx.fillStyle = 'red';
     }
 
     ctx.fill();
-
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 1;
     ctx.stroke();
+    ctx.restore();
 }
 
 function canvas_click(event) {
@@ -402,6 +389,69 @@ function canvas_click(event) {
     );
 }
 
+function canvas_target(event) {
+    const canvas = document.getElementById('canvas');
+    const rect = canvas.getBoundingClientRect();
+
+    canvas_position = {
+        x: (event.clientX - rect.left) *
+            canvas.width / rect.width,
+        y: (event.clientY - rect.top) *
+            canvas.height / rect.height
+    };
+
+    canvas_hover = true;
+    redraw_canvas();
+}
+
+function draw_target() {
+    if (canvas_position === null) {
+        return;
+    }
+
+    const r_element = document.querySelector(
+        'input[name="r"]:checked'
+    );
+
+    if (r_element === null) {
+        return;
+    }
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const canvas_x = canvas_position.x;
+    const canvas_y = canvas_position.y;
+    const r = Number(r_element.value);
+
+    const x = Number(
+        ((canvas_x - 250) / 160 * r).toFixed(2)
+    );
+
+    const y = Number(
+        ((250 - canvas_y) / 160 * r).toFixed(2)
+    );
+
+    ctx.save();
+
+    if (canvas_hover) {
+        ctx.beginPath();
+        ctx.setLineDash([10, 5]);
+        ctx.moveTo(0, canvas_y);
+        ctx.lineTo(canvas.width, canvas_y);
+        ctx.moveTo(canvas_x, 0);
+        ctx.lineTo(canvas_x, canvas.height);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = '#000';
+    ctx.font = '20px Arial';
+    ctx.fillText(String(x), 40, 460);
+    ctx.fillText(String(y), 40, 480);
+    ctx.restore();
+}
+
 function format_date(timestamp) {
     return new Intl.DateTimeFormat('ru-RU', {
         dateStyle: 'medium',
@@ -415,58 +465,116 @@ function create_cell(value) {
     return cell;
 }
 
-function compare_results_by_y(first_result, second_result) {
-    return first_result.y - second_result.y;
+function compare_results(param, option) {
+    return function (first_result, second_result) {
+        let difference;
+
+        switch (param) {
+            case 'x':
+                difference =
+                    first_result.x - second_result.x;
+                break;
+
+            case 'y':
+                difference =
+                    first_result.y - second_result.y;
+                break;
+
+            case 'r':
+                difference =
+                    first_result.r - second_result.r;
+                break;
+
+            case 'date':
+                difference =
+                    first_result.timestamp -
+                    second_result.timestamp;
+                break;
+
+            default:
+                return 0;
+        }
+
+        if (option === '>') {
+            return difference;
+        }
+
+        return -difference;
+    };
 }
 
-function change_result_y(event) {
+function draw_all_points(value) {
+    for (const result of results) {
+        if (value === 'in' && result.hit !== true) {
+            continue;
+        }
+
+        if (value === 'out' && result.hit !== false) {
+            continue;
+        }
+
+        drawDots(result);
+    }
+}
+
+function change_result_value(event) {
     const input = event.target;
     const result_index = Number(input.dataset.index);
-    const new_y = parse_y(input.value);
+    const param = input.dataset.param;
+    const result = results[result_index];
+    let new_value;
 
-    if (new_y === null) {
-        alert('Y должен быть числом от −3 до 3');
+    if (param === 'y') {
+        new_value = parse_y(input.value);
+    } else {
+        const normalized = input.value.trim().replace(',', '.');
+        const controls = param === 'x' ? x_input : r_input;
+        const number_pattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
+        new_value = Number(normalized);
 
-        input.value =
-            String(results[result_index].y);
+        if (
+            number_pattern.test(normalized) === false ||
+            Array.from(controls).some(control =>
+                Number(control.value) === new_value
+            ) === false
+        ) {
+            new_value = null;
+        }
+    }
 
+    if (new_value === null) {
+        if (param === 'y') {
+            alert('Y должен быть числом от −3 до 3');
+        } else {
+            alert(param.toUpperCase() + ': выберите значение из набора в форме');
+        }
+        input.value = String(result[param]);
         return;
     }
 
-    const result = results[result_index];
-
-    result.y = new_y;
-
+    result[param] = new_value;
     result.hit = is_point_inside(
         result.x,
         result.y,
         result.r
     );
 
-    results.sort(compare_results_by_y);
-
     save_results();
     render_results();
 }
 
-function create_special_cell(value, result_index) {
-    const table_cell =
-        document.createElement('td');
-
-    const input =
-        document.createElement('input');
+function create_special_cell(value, result_index, param) {
+    const table_cell = document.createElement('td');
+    const input = document.createElement('input');
 
     input.type = 'text';
-    // input.pattern = "/^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/";
-    input.className = 'result_y_input';
+    input.inputMode = 'decimal';
+    input.className = 'result_input';
     input.value = String(value);
-    input.dataset.index =
-        String(result_index);
-
-    input.addEventListener(
-        'change',
-        change_result_y
-    );
+    input.dataset.index = String(result_index);
+    input.dataset.param = param;
+    input.setAttribute('aria-label', 'Изменить ' + param.toUpperCase());
+    input.addEventListener('change', change_result_value);
 
     table_cell.appendChild(input);
 
@@ -474,11 +582,27 @@ function create_special_cell(value, result_index) {
 }
 
 function render_results() {
+    results.sort(compare_results(
+        sort_param.value,
+        sort_option.value
+    ));
+
+    highlighted_result = null;
     results_body.replaceChildren();
 
     for (let i = 0; i < results.length; i++) {
         const result = results[i];
         const row = document.createElement('tr');
+
+        row.addEventListener('mouseenter', () => {
+            highlighted_result = result;
+            redraw_canvas();
+        });
+
+        row.addEventListener('mouseleave', () => {
+            highlighted_result = null;
+            redraw_canvas();
+        });
 
         let result_text;
 
@@ -490,9 +614,9 @@ function render_results() {
             row.className = 'miss';
         }
 
-        const x_cell = create_cell(result.x);
-        const y_cell = create_special_cell(result.y, i);
-        const r_cell = create_cell(result.r);
+        const x_cell = create_special_cell(result.x, i, 'x');
+        const y_cell = create_special_cell(result.y, i, 'y');
+        const r_cell = create_special_cell(result.r, i, 'r');
         const result_cell = create_cell(result_text);
         const date_cell = create_cell(format_date(result.timestamp));
 
@@ -504,9 +628,13 @@ function render_results() {
 
         results_body.appendChild(row);
     }
+
+    redraw_canvas();
 }
+
 function button_send_form(event) {
     event.preventDefault();
+
     form_error.textContent = '';
 
     try {
@@ -542,16 +670,21 @@ form.addEventListener('change', save_form_state);
 
 y_input.addEventListener('input', save_form_state);
 
-
-
 load_form_state();
 
-results.sort(compare_results_by_y);
+sort_param.addEventListener('change', render_results);
+sort_option.addEventListener('change', render_results);
+
+all_points.addEventListener('change', redraw_canvas);
+sort_points_param.addEventListener('change', redraw_canvas);
 
 render_results();
-redraw_canvas();
-
 
 const canvas = document.getElementById('canvas');
 
 canvas.addEventListener('click', canvas_click);
+canvas.addEventListener('mousemove', canvas_target);
+canvas.addEventListener('mouseleave', () => {
+    canvas_hover = false;
+    redraw_canvas();
+});

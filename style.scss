@@ -25,16 +25,20 @@ $primary-color: #000000;
 }
 
 
-
 #canvas {
   flex: 0 0 500px;
   max-width: 100%;
   height: auto;
-  border: 1px solid white;
+  border: 1px solid transparent;
   width: 500px;
   aspect-ratio: 1 / 1;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2),
+  0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 15px;
+}
 
+#canvas:hover {
+  border-color: #00a0ff;
 }
 
 .right-column {
@@ -51,6 +55,9 @@ $primary-color: #000000;
   overflow-y: auto;
   overflow-x: auto;
   border: 2px solid black;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2),
+  0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 5px;
 }
 
 #results-table {
@@ -110,8 +117,10 @@ button {
   border-radius: 4px;
   font: inherit;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
 }
-.result_y_input {
+.result_input {
   box-sizing: border-box;
   width: 100%;
   margin: 0;
@@ -124,7 +133,7 @@ button {
 
 }
 
-.result_y_input:focus {
+.result_input:focus {
   background-color: white;
   border-color: #00a0ff;
   outline: 2px solid #00a0ff;
@@ -148,7 +157,7 @@ button:hover {
   border: 2px solid green;
 }
 
-.results h2::before {
+#sort h2::before {
   content: "◆ ";
   color: #00A0FFFF;
 }
@@ -162,12 +171,29 @@ button:hover {
 }
 
 
-#buttons {
+#button-row {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  /*justify-content: center;*/
-  align-content: center;
+  align-items: center;
+  gap: 12px;
+}
 
-  gap: 5px;
+#button-row > label {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+#show_all_points {
+  margin: 0;
+}
+
+#sort {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2%;
 }
