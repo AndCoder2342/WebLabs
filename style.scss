@@ -8,12 +8,15 @@ $primary-color: #000000;
   font-family: serif;
   font-size: 300%;
   color: $primary-color;
-  align-items: flex-start;
+  align-items: baseline;
   justify-content: center;
   gap: 3%;
-  padding: 2%;
+  //padding: 2%;
 }
 
+.small-cap {
+  font-size: 50%;
+}
 .workspace {
   display: flex;
   flex-direction: row;
@@ -26,11 +29,11 @@ $primary-color: #000000;
 
 
 #canvas {
-  flex: 0 0 500px;
+  flex: 0 0 600px;
   max-width: 100%;
   height: auto;
   border: 1px solid transparent;
-  width: 500px;
+  width: 600px;
   aspect-ratio: 1 / 1;
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2),
   0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -46,7 +49,7 @@ $primary-color: #000000;
   flex: 1 1 600px;
   flex-direction: column;
   gap: 20%;
-  max-width: 500px;
+  max-width: 600px;
 }
 
 .table-container {
@@ -115,10 +118,6 @@ button {
   background-color: whitesmoke;
   border: 2px solid dimgrey;
   border-radius: 4px;
-  font: inherit;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
 }
 .result_input {
   box-sizing: border-box;
@@ -139,13 +138,16 @@ button {
   outline: 2px solid #00a0ff;
 }
 
-button:hover {
+button:hover,
+#r_input:hover {
   color: #222222;
   background-color: #e2e2e2;
   border-color: #444444;
 }
 
-#form input:focus {
+#form input:focus,
+#form button:focus-visible,
+#r_input:focus-visible {
   outline: 2px solid #00A0FFFF;
 }
 
@@ -196,4 +198,16 @@ button:hover {
   flex-direction: row;
   align-items: center;
   gap: 2%;
+}
+
+button[name="x"] {
+  min-width: 42px;
+  margin: 3px;
+  padding: 8px;
+}
+
+button[name="x"][aria-pressed="true"] {
+  color: #0077bf;
+  background-color: #dceeff;
+  border-color: #0077bf;
 }

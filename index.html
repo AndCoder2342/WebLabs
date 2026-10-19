@@ -9,40 +9,43 @@
 </head>
 <body>
   <header>
-      <h1 class="cap" id="variant">Сафин Илья Дмитриевич P3206 Вариант: 501526</h1>
+      <h1 class="cap" id="variant">Сафин Илья Дмитриевич P3206 Вариант: 95319 <a class="small-cap" href="https://github.com/AndCoder2342/WebLabs">GitHub</a></h1>
   </header>
   <main>
       <div class="workspace">
-          <canvas id="canvas" width="500" height="500"></canvas>
+          <canvas id="canvas" width="1800" height="1800"></canvas>
 
           <div class="right-column">
               <form id="form">
                   <fieldset>
                       <legend>Координата Х</legend>
 
-                      <label><input type="radio" name="x" value="-2" required>-2</label>
-                      <label><input type="radio" name="x" value="-1.5" required>-1.5</label>
-                      <label><input type="radio" name="x" value="-1" required>-1</label>
-                      <label><input type="radio" name="x" value="-0.5" required>-0.5</label>
-                      <label><input type="radio" name="x" value="0" required>0</label>
-                      <label><input type="radio" name="x" value="0.5" required>0.5</label>
-                      <label><input type="radio" name="x" value="1" required>1</label>
-                      <label><input type="radio" name="x" value="1.5" required>1.5</label>
-                      <label><input type="radio" name="x" value="2" required>2</label>
+                      <button type="button" name="x" value="-2" aria-pressed="false">-2</button>
+                      <button type="button" name="x" value="-1.5" aria-pressed="false">-1.5</button>
+                      <button type="button" name="x" value="-1" aria-pressed="false">-1</button>
+                      <button type="button" name="x" value="-0.5" aria-pressed="false">-0.5</button>
+                      <button type="button" name="x" value="0" aria-pressed="false">0</button>
+                      <button type="button" name="x" value="0.5" aria-pressed="false">0.5</button>
+                      <button type="button" name="x" value="1" aria-pressed="false">1</button>
+                      <button type="button" name="x" value="1.5" aria-pressed="false">1.5</button>
+                      <button type="button" name="x" value="2" aria-pressed="false">2</button>
 
                   </fieldset>
                   <div class="cord-y">
                       <label for="y_input">Координата Y</label>
-                      <input id="y_input" type="text" required inputmode="decimal" pattern="[\-+]?(?:\d+(?:[.,]\d+)?|[.,]\d+)" placeholder="от −3 до 3">
+                      <input id="y_input" type="text" required inputmode="decimal" pattern="[\-+]?(?:\d+(?:[.,]\d+)?|[.,]\d+)" placeholder="−5 < Y < 3">
                   </div>
 
                   <fieldset>
                       <legend>Радиус R</legend>
-                      <label><input type="checkbox" name="r" value="1">1</label>
-                      <label><input type="checkbox" name="r" value="1.5">1.5</label>
-                      <label><input type="checkbox" name="r" value="2">2</label>
-                      <label><input type="checkbox" name="r" value="2.5">2.5</label>
-                      <label><input type="checkbox" name="r" value="3">3</label>
+                      <select id="r_input" name="r" required aria-label="Радиус R">
+                          <option value="" disabled selected>Выберите R</option>
+                          <option value="1">1</option>
+                          <option value="1.5">1.5</option>
+                          <option value="2">2</option>
+                          <option value="2.5">2.5</option>
+                          <option value="3">3</option>
+                      </select>
                   </fieldset>
                   <p id="form_error" role="alert"></p>
                   <div id="button-row">

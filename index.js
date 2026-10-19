@@ -2,102 +2,105 @@ function draw() {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
+    const width = canvas.width;
+    const height = canvas.height;
+    const r = Math.min(width, height) / 3;
+
+    ctx.save();
     ctx.fillStyle = 'rgb(0 160 255)';
-    ctx.fillRect(250, 250, 160, 160);
-
-    ctx.beginPath();
+    ctx.strokeStyle = '#0077bf';
+    ctx.lineWidth = 6;
+    ctx.lineJoin = 'round';
     ctx.setLineDash([]);
-    ctx.moveTo(250, 250);
-    ctx.lineTo(410, 250);
-    ctx.lineTo(250, 170);
-    ctx.closePath();
-    ctx.fill();
 
     ctx.beginPath();
-    ctx.moveTo(170, 250);
-    ctx.arc(250, 250, 80, Math.PI, Math.PI / 2, true);
-    ctx.lineTo(250, 250);
+    ctx.moveTo(width / 2 - r, height / 2);
+    ctx.lineTo(width / 2 - r / 2, height / 2);
+    ctx.arc(width / 2, height / 2, r / 2, Math.PI, Math.PI * 1.5);
+    ctx.lineTo(width / 2, height / 2);
+    ctx.lineTo(width / 2 + r / 2, height / 2);
+    ctx.lineTo(width / 2 + r / 2, height / 2 + r);
+    ctx.lineTo(width / 2, height / 2 + r);
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
+    ctx.restore();
 
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 6;
+    ctx.setLineDash([]);
 
     ctx.beginPath();
-    ctx.moveTo(50, 250);
-    ctx.lineTo(450, 250);
+    ctx.moveTo(50, height / 2);
+    ctx.lineTo(width - 50, height / 2);
 
-    ctx.moveTo(250, 50);
-    ctx.lineTo(250, 450);
+    ctx.moveTo(width / 2, 50);
+    ctx.lineTo(width / 2, height - 50);
 
-    ctx.moveTo(250, 50);
-    ctx.lineTo(240, 70);
+    ctx.moveTo(width / 2, 50);
+    ctx.lineTo(width / 2 - 20, 90);
 
-    ctx.moveTo(250, 50);
-    ctx.lineTo(260, 70);
+    ctx.moveTo(width / 2, 50);
+    ctx.lineTo(width / 2 + 20, 90);
 
-    ctx.moveTo(450, 250);
-    ctx.lineTo(430, 240);
+    ctx.moveTo(width - 50, height / 2);
+    ctx.lineTo(width - 90, height / 2 - 20);
 
-    ctx.moveTo(450, 250);
-    ctx.lineTo(430, 260);
+    ctx.moveTo(width - 50, height / 2);
+    ctx.lineTo(width - 90, height / 2 + 20);
 
-    ctx.moveTo(245, 90);
-    ctx.lineTo(255, 90);
+    ctx.moveTo(width / 2 - 10, height / 2 - r);
+    ctx.lineTo(width / 2 + 10, height / 2 - r);
 
-    ctx.moveTo(245, 170);
-    ctx.lineTo(255, 170);
+    ctx.moveTo(width / 2 - 10, height / 2 - r / 2);
+    ctx.lineTo(width / 2 + 10, height / 2 - r / 2);
 
-    ctx.moveTo(245, 330);
-    ctx.lineTo(255, 330);
+    ctx.moveTo(width / 2 - 10, height / 2 + r / 2);
+    ctx.lineTo(width / 2 + 10, height / 2 + r / 2);
 
-    ctx.moveTo(245, 330);
-    ctx.lineTo(255, 330);
+    ctx.moveTo(width / 2 - 10, height / 2 + r);
+    ctx.lineTo(width / 2 + 10, height / 2 + r);
 
-    ctx.moveTo(245, 410);
-    ctx.lineTo(255, 410);
+    ctx.moveTo(width / 2 + r, height / 2 - 10);
+    ctx.lineTo(width / 2 + r, height / 2 + 10);
 
-    ctx.moveTo(410, 245);
-    ctx.lineTo(410, 255);
+    ctx.moveTo(width / 2 + r / 2, height / 2 - 10);
+    ctx.lineTo(width / 2 + r / 2, height / 2 + 10);
 
-    ctx.moveTo(330, 245);
-    ctx.lineTo(330, 255);
+    ctx.moveTo(width / 2 - r / 2, height / 2 - 10);
+    ctx.lineTo(width / 2 - r / 2, height / 2 + 10);
 
-    ctx.moveTo(170, 245);
-    ctx.lineTo(170, 255);
-
-    ctx.moveTo(90, 245);
-    ctx.lineTo(90, 255);
+    ctx.moveTo(width / 2 - r, height / 2 - 10);
+    ctx.lineTo(width / 2 - r, height / 2 + 10);
     ctx.stroke();
 
     ctx.fillStyle = '#000';
-    ctx.font = '20px Arial';
+    ctx.font = '60px Arial';
 
-    ctx.fillText('R', 255, 90);
-    ctx.fillText('R/2', 255, 170);
+    ctx.fillText('R', width / 2 + 30, height / 2 - r);
+    ctx.fillText('R/2', width / 2 + 30, height / 2 - r / 2);
 
-    ctx.fillText('-R', 255, 410);
-    ctx.fillText('-R/2', 255, 330);
+    ctx.fillText('-R', width / 2 + 30, height / 2 + r);
+    ctx.fillText('-R/2', width / 2 + 30, height / 2 + r / 2);
 
-    ctx.fillText('R/2', 330, 240);
-    ctx.fillText('R', 410, 240);
+    ctx.fillText('R/2', width / 2 + r / 2, height / 2 - 30);
+    ctx.fillText('R', width / 2 + r, height / 2 - 30);
 
-    ctx.fillText('-R/2', 170, 240);
-    ctx.fillText('-R', 90, 240);
+    ctx.fillText('-R/2', width / 2 - r / 2, height / 2 - 30);
+    ctx.fillText('-R', width / 2 - r, height / 2 - 30);
 
-    ctx.fillText('x', 455, 240);
-    ctx.fillText('y', 260, 45);
+    ctx.fillText('x', width - 70, height / 2 - 40);
+    ctx.fillText('y', width / 2 + 40, 90);
 
-    ctx.fillText('x: ', 20, 460);
-    ctx.fillText('y: ', 20, 480);
-
+    ctx.fillText('x: ', 40, height - 100);
+    ctx.fillText('y: ', 40, height - 40);
 }
 
 const form = document.getElementById('form');
 const y_input = document.getElementById('y_input');
 const form_error = document.getElementById('form_error');
 const results_body = document.getElementById('results_body');
-const r_input = document.querySelectorAll('input[name="r"]');
+const r_input = document.getElementById('r_input');
 
 const sort_param = document.getElementById('sort_param');
 const sort_option = document.getElementById('sort_option');
@@ -126,6 +129,14 @@ function loadResults() {
             return [];
         }
 
+        for (const result of parsed_results) {
+            result.hit = is_point_inside(
+                result.x,
+                result.y,
+                result.r
+            );
+        }
+
         return parsed_results;
     } catch {
         return [];
@@ -138,25 +149,17 @@ function save_results() {
 
 function save_form_state() {
     const x_element = document.querySelector(
-        'input[name="x"]:checked'
-    );
-
-    const r_element = document.querySelector(
-        'input[name="r"]:checked'
+        'button[name="x"][aria-pressed="true"]'
     );
 
     const form_state = {
         x: null,
         y: y_input.value,
-        r: null
+        r: r_input.value
     };
 
     if (x_element !== null) {
         form_state.x = x_element.value;
-    }
-
-    if (r_element !== null) {
-        form_state.r = r_element.value;
     }
 
     localStorage.setItem(
@@ -179,15 +182,14 @@ function load_form_state() {
 
         y_input.value = form_state.y || '';
 
-        for (const radio of x_input) {
-            radio.checked =
-                radio.value === form_state.x;
+        for (const button of x_input) {
+            button.setAttribute(
+                'aria-pressed',
+                String(button.value === form_state.x)
+            );
         }
 
-        for (const checkbox of r_input) {
-            checkbox.checked =
-                checkbox.value === form_state.r;
-        }
+        r_input.value = form_state.r || '';
     } catch {
         localStorage.removeItem(
             FORM_STORAGE_KEY
@@ -195,39 +197,37 @@ function load_form_state() {
     }
 }
 
-function fix_r(event) {
-    if (event.target.checked === false) {
-        redraw_canvas();
-        return;
+function select_x(event) {
+    for (const button of x_input) {
+        button.setAttribute(
+            'aria-pressed',
+            String(button === event.currentTarget)
+        );
     }
 
-    for (const checkbox of r_input) {
-        if (checkbox !== event.target) {
-            checkbox.checked = false;
-        }
-    }
+    save_form_state();
     redraw_canvas();
 }
 
-for (const checkbox of r_input) {
-    checkbox.addEventListener('change', fix_r)
-}
-
 const x_input = document.querySelectorAll(
-    'input[name="x"]'
+    'button[name="x"]'
 );
 
-for (const radio of x_input) {
-    radio.addEventListener(
-        'change',
-        redraw_canvas
-    );
+for (const button of x_input) {
+    button.addEventListener('click', select_x);
 }
 
-y_input.addEventListener(
-    'input',
-    redraw_canvas
-);
+r_input.addEventListener('change', redraw_canvas);
+y_input.addEventListener('input', validate_y);
+y_input.addEventListener('input', redraw_canvas);
+
+function validate_y() {
+    if (y_input.value !== '' && parse_y(y_input.value) === null) {
+        y_input.setCustomValidity('Y должен быть числом больше −5 и меньше 3');
+    } else {
+        y_input.setCustomValidity('');
+    }
+}
 
 function parse_y(value) {
     const normalized = value.trim().replace(',', '.');
@@ -242,16 +242,14 @@ function parse_y(value) {
         return null;
     }
 
-    if (y < -3 || y > 3) {
+    if (y <= -5 || y >= 3) {
         return null;
     }
     return y;
 }
 
 function get_form_values() {
-    const x_element = document.querySelector('input[name="x"]:checked');
-
-    const r_elements = document.querySelectorAll('input[name="r"]:checked');
+    const x_element = document.querySelector('button[name="x"][aria-pressed="true"]');
 
     if (x_element === null) {
         throw new Error('Выберите координату X');
@@ -260,26 +258,26 @@ function get_form_values() {
     const y = parse_y(y_input.value);
 
     if (y === null) {
-        throw new Error('Y должен быть числом от −3 до 3');
+        throw new Error('Y должен быть числом больше −5 и меньше 3');
     }
 
-    if (r_elements.length !== 1) {
-        throw new Error('Выберите ровно одно значение R');
+    if (r_input.value === '') {
+        throw new Error('Выберите радиус R');
     }
 
     return {
         x: Number(x_element.value),
         y: y,
-        r: Number(r_elements[0].value)
+        r: Number(r_input.value)
     };
 }
 
 function is_point_inside(x, y, r) {
-    const in_triangle = x >= 0 && y >= 0 && x <= r && y <= r / 2 - x / 2;
+    const in_triangle = x <= 0 && y <= 0 && x + y >= -r;
 
-    const in_rectangle = x >= 0 && y <= 0 && y >= -r && x <= r;
+    const in_rectangle = x >= 0 && x <= r / 2 && y <= 0 && y >= -r;
 
-    const in_circle = x <= 0 && y <= 0 && x * x + y * y <= (r / 2) ** 2;
+    const in_circle = x <= 0 && y >= 0 && x * x + y * y <= (r / 2) ** 2;
 
     return in_triangle || in_rectangle || in_circle;
 }
@@ -314,23 +312,27 @@ function redraw_canvas() {
     }
 
     if (highlighted_result !== null) {
-        drawDots(highlighted_result, 10);
+        drawDots(highlighted_result, 7);
     }
 
     draw_target();
 }
 
-function drawDots(result, radius = 7) {
+function drawDots(result, radius = 5) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    const point_x = 250 + result.x / result.r * 160;
-    const point_y = 250 - result.y / result.r * 160;
+    const width = canvas.width;
+    const height = canvas.height;
+    const scale = Math.min(width, height) / 3;
+
+    const point_x = width / 2 + result.x / result.r * scale;
+    const point_y = height / 2 - result.y / result.r * scale;
 
     ctx.save();
     ctx.setLineDash([]);
     ctx.beginPath();
-    ctx.arc(point_x, point_y, radius, 0, Math.PI * 2);
+    ctx.arc(point_x, point_y, radius * Math.min(width, height) / 500, 0, Math.PI * 2);
 
     if (result.hit === true) {
         ctx.fillStyle = 'green';
@@ -340,7 +342,7 @@ function drawDots(result, radius = 7) {
 
     ctx.fill();
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 4;
     ctx.stroke();
     ctx.restore();
 }
@@ -348,6 +350,9 @@ function drawDots(result, radius = 7) {
 function canvas_click(event) {
     const canvas = document.getElementById('canvas');
     const rect = canvas.getBoundingClientRect();
+    const width = canvas.width;
+    const height = canvas.height;
+    const scale = Math.min(width, height) / 3;
 
     const canvas_x =
         (event.clientX - rect.left) *
@@ -357,19 +362,15 @@ function canvas_click(event) {
         (event.clientY - rect.top) *
         canvas.height / rect.height;
 
-    const r_element = document.querySelector(
-        'input[name="r"]:checked'
-    );
-
-    if (r_element === null) {
+    if (r_input.value === '') {
         alert('Сначала выберите радиус R');
         return;
     }
 
-    const r = Number(r_element.value);
+    const r = Number(r_input.value);
 
-    let x = (canvas_x - 250) / 160 * r;
-    let y = (250 - canvas_y) / 160 * r;
+    let x = (canvas_x - width / 2) / scale * r;
+    let y = (height / 2 - canvas_y) / scale * r;
 
     x = Number(x.toFixed(2));
     y = Number(y.toFixed(2));
@@ -409,46 +410,45 @@ function draw_target() {
         return;
     }
 
-    const r_element = document.querySelector(
-        'input[name="r"]:checked'
-    );
-
-    if (r_element === null) {
+    if (r_input.value === '') {
         return;
     }
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    const scale = Math.min(width, height) / 3;
     const canvas_x = canvas_position.x;
     const canvas_y = canvas_position.y;
-    const r = Number(r_element.value);
+    const r = Number(r_input.value);
 
     const x = Number(
-        ((canvas_x - 250) / 160 * r).toFixed(2)
+        ((canvas_x - width / 2) / scale * r).toFixed(2)
     );
 
     const y = Number(
-        ((250 - canvas_y) / 160 * r).toFixed(2)
+        ((height / 2 - canvas_y) / scale * r).toFixed(2)
     );
 
     ctx.save();
 
     if (canvas_hover) {
         ctx.beginPath();
-        ctx.setLineDash([10, 5]);
+        ctx.setLineDash([30, 15]);
         ctx.moveTo(0, canvas_y);
         ctx.lineTo(canvas.width, canvas_y);
         ctx.moveTo(canvas_x, 0);
         ctx.lineTo(canvas_x, canvas.height);
         ctx.strokeStyle = 'black';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 3;
         ctx.stroke();
     }
 
     ctx.fillStyle = '#000';
-    ctx.font = '20px Arial';
-    ctx.fillText(String(x), 40, 460);
-    ctx.fillText(String(y), 40, 480);
+    ctx.font = '60px Arial';
+    ctx.fillText(String(x), 110, height - 100);
+    ctx.fillText(String(y), 110, height - 40);
     ctx.restore();
 }
 
@@ -528,14 +528,14 @@ function change_result_value(event) {
         new_value = parse_y(input.value);
     } else {
         const normalized = input.value.trim().replace(',', '.');
-        const controls = param === 'x' ? x_input : r_input;
+        const controls = param === 'x' ? x_input : r_input.options;
         const number_pattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
         new_value = Number(normalized);
 
         if (
             number_pattern.test(normalized) === false ||
             Array.from(controls).some(control =>
-                Number(control.value) === new_value
+                control.value !== '' && Number(control.value) === new_value
             ) === false
         ) {
             new_value = null;
@@ -544,7 +544,7 @@ function change_result_value(event) {
 
     if (new_value === null) {
         if (param === 'y') {
-            alert('Y должен быть числом от −3 до 3');
+            alert('Y должен быть числом больше −5 и меньше 3');
         } else {
             alert(param.toUpperCase() + ': выберите значение из набора в форме');
         }
@@ -671,6 +671,7 @@ form.addEventListener('change', save_form_state);
 y_input.addEventListener('input', save_form_state);
 
 load_form_state();
+validate_y();
 
 sort_param.addEventListener('change', render_results);
 sort_option.addEventListener('change', render_results);
