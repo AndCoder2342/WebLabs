@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net"
 	"net/http"
+	"net/http/fcgi"
 	"slices"
 	"strconv"
 	"strings"
@@ -50,7 +52,7 @@ func readNumber(r *http.Request, name string) (float64, error) {
 	}
 	values := r.PostForm[name]
 	if len(values) != 1 {
-		return 0, errors.New("форма отправленна несколько раз")
+		return 0, fmt.Errorf("поле %s должно быть передано ровно один раз", name)
 	}
 	v := strings.TrimSpace(values[0])
 	v = strings.ReplaceAll(v, ",", ".")
@@ -112,7 +114,17 @@ func checkHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	p := Result{X: -1, Y: -1, R: 2}
-	fmt.Println(p.validate())
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/check", checkHandler)
 
+	listener, err := net.Listen("tcp", ":9000")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer listener.Close()
+
+	log.Println("FastCGI-сервер слушает :9000")
+	if err := fcgi.Serve(listener, mux); err != nil {
+		log.Fatal(err)
+	}
 }
