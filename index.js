@@ -108,43 +108,22 @@ const sort_option = document.getElementById('sort_option');
 const all_points = document.getElementById('show_all_points');
 const sort_points_param = document.getElementById('sort_points_param');
 
-const STORAGE_KEY = 'web_lab1_results';
 const FORM_STORAGE_KEY = 'web_lab1_form';
 
-let results = loadResults();
+let results = [];
 let highlighted_result = null;
 let canvas_position = null;
 let canvas_hover = false;
 
-function loadResults() {
-    try {
-        const saved_results = localStorage.getItem(STORAGE_KEY);
+async function load_server_results() {
+    const response = await fetch('/api/results');
 
-        if (saved_results === null) {
-            return [];
-        }
-        const parsed_results = JSON.parse(saved_results);
-
-        if (Array.isArray(parsed_results) === false) {
-            return [];
-        }
-
-        for (const result of parsed_results) {
-            result.hit = is_point_inside(
-                result.x,
-                result.y,
-                result.r
-            );
-        }
-
-        return parsed_results;
-    } catch {
-        return [];
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message);
     }
-}
-
-function save_results() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+    results = await response.json();
+    render_results();
 }
 
 function save_form_state() {
@@ -613,18 +592,23 @@ function render_results() {
             result_text = 'Промах';
             row.className = 'miss';
         }
-
-        const x_cell = create_special_cell(result.x, i, 'x');
-        const y_cell = create_special_cell(result.y, i, 'y');
-        const r_cell = create_special_cell(result.r, i, 'r');
+        //
+        // const x_cell = create_special_cell(result.x, i, 'x');
+        // const y_cell = create_special_cell(result.y, i, 'y');
+        // const r_cell = create_special_cell(result.r, i, 'r');
+        const x_cell = create_cell(result.x);
+        const y_cell = create_cell(result.y);
+        const r_cell = create_cell(result.r);
         const result_cell = create_cell(result_text);
         const date_cell = create_cell(format_date(result.timestamp));
+        const execution_cell = create_cell(result.execution_time_ms.toFixed(3));
 
         row.appendChild(x_cell);
         row.appendChild(y_cell);
         row.appendChild(r_cell);
         row.appendChild(result_cell);
         row.appendChild(date_cell);
+        row.appendChild(execution_cell);
 
         results_body.appendChild(row);
     }
@@ -632,35 +616,40 @@ function render_results() {
     redraw_canvas();
 }
 
-function button_send_form(event) {
+async function button_send_form(event) {
     event.preventDefault();
-
     form_error.textContent = '';
+
+    const submit_button = form.querySelector('button[type="submit"]');
+    submit_button.disabled = true;
 
     try {
         const values = get_form_values();
 
-        const x = values.x;
-        const y = values.y;
-        const r = values.r;
+        const body = new URLSearchParams({
+            x: String(values.x),
+            y: String(values.y),
+            r: String(values.r)
+        });
 
-        const hit = is_point_inside(x, y, r);
-        const current_time = Date.now();
+        const response = await fetch('/api/check', {
+            method: 'POST',
+            body: body
+        });
 
-        const result = {
-            x: x,
-            y: y,
-            r: r,
-            hit: hit,
-            timestamp: current_time
-        };
+        if (!response.ok) {
+            const message = await response.text();
+            throw new Error(message);
+        }
+
+        const result = await response.json();
 
         results.push(result);
-
-        save_results();
         render_results();
     } catch (error) {
         form_error.textContent = error.message;
+    } finally {
+        submit_button.disabled = false;
     }
 }
 
@@ -688,4 +677,8 @@ canvas.addEventListener('mousemove', canvas_target);
 canvas.addEventListener('mouseleave', () => {
     canvas_hover = false;
     redraw_canvas();
+});
+
+load_server_results().catch(error => {
+    form_error.textContent = error.message;
 });

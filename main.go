@@ -12,6 +12,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -23,6 +24,9 @@ type Result struct {
 	Timestamp       int64   `json:"timestamp"`
 	ExecutionTimeMS float64 `json:"execution_time_ms"`
 }
+
+var results = make([]Result, 0)
+var resultsMu sync.Mutex
 
 func (r *Result) calculateHit() {
 	inTriangle := r.X <= 0 && r.Y <= 0 && r.X+r.Y >= -r.R
@@ -104,6 +108,10 @@ func checkHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	resultsMu.Lock()
+	results = append(results, result)
+	resultsMu.Unlock()
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(resultJSON); err != nil {
@@ -113,9 +121,31 @@ func checkHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func resultsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.Header().Set("Allow", http.MethodGet)
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	resultsMu.Lock()
+	resultsJSON, err := json.Marshal(results)
+	resultsMu.Unlock()
+	if err != nil {
+		http.Error(w, "не удалось сформировать историю", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(resultsJSON); err != nil {
+		log.Println("ошибка отправки ответа:", err)
+		return
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/check", checkHandler)
+	mux.HandleFunc("/api/results", resultsHandler)
 
 	listener, err := net.Listen("tcp", ":9000")
 	if err != nil {
