@@ -111,7 +111,6 @@ func checkHandler(w http.ResponseWriter, r *http.Request) {
 	resultsMu.Lock()
 	results = append(results, result)
 	resultsMu.Unlock()
-
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(resultJSON); err != nil {
@@ -158,3 +157,5 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+//docker compose up --build -d

@@ -1,14 +1,14 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      target: web
     ports:
       - "127.0.0.1:8080:80"
     depends_on:
       - backend
 
   backend:
-    image: golang:1.27.2
-    working_dir: /app
-    volumes:
-      - .:/app:ro
-    command: ["go", "run", "."]
+    build:
+      context: .
+      target: backend

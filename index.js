@@ -107,7 +107,6 @@ const sort_option = document.getElementById('sort_option');
 
 const all_points = document.getElementById('show_all_points');
 const sort_points_param = document.getElementById('sort_points_param');
-
 const FORM_STORAGE_KEY = 'web_lab1_form';
 
 let results = [];
@@ -682,3 +681,5 @@ canvas.addEventListener('mouseleave', () => {
 load_server_results().catch(error => {
     form_error.textContent = error.message;
 });
+
+// docker compose up --build -d
