@@ -114,15 +114,156 @@ let highlighted_result = null;
 let canvas_position = null;
 let canvas_hover = false;
 
+const connection_type = 'superagent';
+
 async function load_server_results() {
-    const response = await fetch('/api/results');
+    try {
+        results = await server_request('load_results');
+
+        render_results();
+    } catch (error) {
+        form_error.textContent = error.message;
+    }
+}
+
+function create_request(
+    operation,
+    data = null
+) {
+    switch (operation) {
+        case 'load_results':
+            return {
+                method: 'GET',
+                url: '/api/results',
+                websocket_type: 'get_results',
+                data: null
+            };
+
+        case 'check_point':
+            return {
+                method: 'POST',
+                url: '/api/check',
+                websocket_type: 'check',
+
+                data: {
+                    x: String(data.x),
+                    y: String(data.y),
+                    r: String(data.r)
+                }
+            };
+
+        default:
+            throw new Error(
+                `Неизвестная операция: ${operation}`
+            );
+    }
+}
+
+async function request_by_fetch(request) {
+    const options = {
+        method: request.method
+    };
+
+    if (request.data !== null) {
+        options.body =
+            new URLSearchParams(
+                request.data
+            );
+    }
+
+    const response = await fetch(
+        request.url,
+        options
+    );
 
     if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message);
+        const message =
+            await response.text();
+
+        throw new Error(
+            message ||
+            `HTTP ${response.status}`
+        );
     }
-    results = await response.json();
-    render_results();
+
+    return response.json();
+}
+
+function request_by_jquery(request) {
+    return new Promise((resolve, reject) => {
+        const options = {
+            url: request.url,
+            method: request.method,
+            dataType: 'json'
+        };
+
+        if (request.data !== null) {
+            options.data = request.data;
+        }
+
+        $.ajax(options)
+            .done(function (response_data) {
+                resolve(response_data);
+            })
+            .fail(function (
+                jqXHR,
+                textStatus,
+                errorThrown
+            ) {
+                reject(
+                    new Error(jqXHR.responseText || errorThrown || textStatus)
+                );
+            });
+    });
+}
+
+async function request_by_superagent(request) {
+    try {
+        let superagent_request =
+            superagent(
+                request.method,
+                request.url
+            ).accept('json');
+
+        if (request.data !== null) {
+            superagent_request =
+                superagent_request
+                    .type('form')
+                    .send(request.data);
+        }
+
+        const response = await superagent_request;
+
+        return response.body;
+    } catch (error) {
+        throw new Error(error.response?.text || error.message || 'Ошибка SuperAgent');
+    }
+}
+
+function server_request(
+    operation,
+    data = null
+) {
+    const request =
+        create_request(operation, data);
+
+    switch (connection_type) {
+        case 'fetch':
+            return request_by_fetch(request);
+
+        case 'jquery':
+            return request_by_jquery(request);
+
+        case 'superagent':
+            return request_by_superagent(request);
+
+        default:
+            return Promise.reject(
+                new Error(
+                    `Неизвестное соединение: ${connection_type}`
+                )
+            );
+    }
 }
 
 function save_form_state() {
@@ -494,70 +635,70 @@ function draw_all_points(value) {
         drawDots(result);
     }
 }
-
-function change_result_value(event) {
-    const input = event.target;
-    const result_index = Number(input.dataset.index);
-    const param = input.dataset.param;
-    const result = results[result_index];
-    let new_value;
-
-    if (param === 'y') {
-        new_value = parse_y(input.value);
-    } else {
-        const normalized = input.value.trim().replace(',', '.');
-        const controls = param === 'x' ? x_input : r_input.options;
-        const number_pattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
-        new_value = Number(normalized);
-
-        if (
-            number_pattern.test(normalized) === false ||
-            Array.from(controls).some(control =>
-                control.value !== '' && Number(control.value) === new_value
-            ) === false
-        ) {
-            new_value = null;
-        }
-    }
-
-    if (new_value === null) {
-        if (param === 'y') {
-            alert('Y должен быть числом больше −5 и меньше 3');
-        } else {
-            alert(param.toUpperCase() + ': выберите значение из набора в форме');
-        }
-        input.value = String(result[param]);
-        return;
-    }
-
-    result[param] = new_value;
-    result.hit = is_point_inside(
-        result.x,
-        result.y,
-        result.r
-    );
-
-    save_results();
-    render_results();
-}
-
-function create_special_cell(value, result_index, param) {
-    const table_cell = document.createElement('td');
-    const input = document.createElement('input');
-
-    input.type = 'text';
-    input.inputMode = 'decimal';
-    input.className = 'result_input';
-    input.value = String(value);
-    input.dataset.index = String(result_index);
-    input.dataset.param = param;
-    input.setAttribute('aria-label', 'Изменить ' + param.toUpperCase());
-    input.addEventListener('change', change_result_value);
-
-    table_cell.appendChild(input);
-
-    return table_cell;
-}
+//
+// function change_result_value(event) {
+//     const input = event.target;
+//     const result_index = Number(input.dataset.index);
+//     const param = input.dataset.param;
+//     const result = results[result_index];
+//     let new_value;
+//
+//     if (param === 'y') {
+//         new_value = parse_y(input.value);
+//     } else {
+//         const normalized = input.value.trim().replace(',', '.');
+//         const controls = param === 'x' ? x_input : r_input.options;
+//         const number_pattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
+//         new_value = Number(normalized);
+//
+//         if (
+//             number_pattern.test(normalized) === false ||
+//             Array.from(controls).some(control =>
+//                 control.value !== '' && Number(control.value) === new_value
+//             ) === false
+//         ) {
+//             new_value = null;
+//         }
+//     }
+//
+//     if (new_value === null) {
+//         if (param === 'y') {
+//             alert('Y должен быть числом больше −5 и меньше 3');
+//         } else {
+//             alert(param.toUpperCase() + ': выберите значение из набора в форме');
+//         }
+//         input.value = String(result[param]);
+//         return;
+//     }
+//
+//     result[param] = new_value;
+//     result.hit = is_point_inside(
+//         result.x,
+//         result.y,
+//         result.r
+//     );
+//
+//     // save_results();
+//     render_results();
+// }
+//
+// function create_special_cell(value, result_index, param) {
+//     const table_cell = document.createElement('td');
+//     const input = document.createElement('input');
+//
+//     input.type = 'text';
+//     input.inputMode = 'decimal';
+//     input.className = 'result_input';
+//     input.value = String(value);
+//     input.dataset.index = String(result_index);
+//     input.dataset.param = param;
+//     input.setAttribute('aria-label', 'Изменить ' + param.toUpperCase());
+//     input.addEventListener('change', change_result_value);
+//
+//     table_cell.appendChild(input);
+//
+//     return table_cell;
+// }
 
 function render_results() {
     results.sort(compare_results(
@@ -614,45 +755,40 @@ function render_results() {
 
     redraw_canvas();
 }
-
 async function button_send_form(event) {
     event.preventDefault();
     form_error.textContent = '';
 
-    const submit_button = form.querySelector('button[type="submit"]');
+    const submit_button =
+        form.querySelector(
+            'button[type="submit"]'
+        );
+
     submit_button.disabled = true;
 
     try {
-        const values = get_form_values();
+        const values =
+            get_form_values();
 
-        const body = new URLSearchParams({
-            x: String(values.x),
-            y: String(values.y),
-            r: String(values.r)
-        });
-
-        const response = await fetch('/api/check', {
-            method: 'POST',
-            body: body
-        });
-
-        if (!response.ok) {
-            const message = await response.text();
-            throw new Error(message);
-        }
-
-        const result = await response.json();
+        const result = await server_request(
+            'check_point',
+            values
+        );
 
         results.push(result);
         render_results();
     } catch (error) {
-        form_error.textContent = error.message;
+        form_error.textContent =
+            error.message;
     } finally {
         submit_button.disabled = false;
     }
 }
 
+
 form.addEventListener('submit', button_send_form);
+
+
 
 form.addEventListener('change', save_form_state);
 
@@ -681,5 +817,11 @@ canvas.addEventListener('mouseleave', () => {
 load_server_results().catch(error => {
     form_error.textContent = error.message;
 });
+
+// load_server_results().catch(error => {form_error.textContent = error.response?.text || error.message;});
+
+// load_ping_results().catch(error => {
+//     form_error.textContent = error.message;
+// });
 
 // docker compose up --build -d

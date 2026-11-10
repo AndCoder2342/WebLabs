@@ -159,3 +159,5 @@ func main() {
 }
 
 //docker compose up --build -d
+
+// curl -i -d 'x=hello&y=0&r=2' http://localhost:8080/api/check
