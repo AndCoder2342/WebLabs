@@ -1,28 +1,18 @@
-FROM httpd:2.4 AS web
+FROM golang:1.27.2 AS builder
 
-RUN sed -i \
-    -e 's/^#LoadModule proxy_module /LoadModule proxy_module /' \
-    -e 's/^#LoadModule proxy_fcgi_module /LoadModule proxy_fcgi_module /' \
-    /usr/local/apache2/conf/httpd.conf
-
-COPY apache.conf /usr/local/apache2/conf/extra/lab.conf
-
-RUN echo 'Include conf/extra/lab.conf' >> /usr/local/apache2/conf/httpd.conf
-
-COPY index.html index.js style.css /usr/local/apache2/htdocs/
-
-EXPOSE 80
-
-FROM golang:1.27.2 AS backend
-
-WORKDIR /app
-
+WORKDIR /src
 COPY go.mod ./
 COPY *.go ./
 
-RUN go build -o /usr/local/bin/weblab .
+RUN CGO_ENABLED=0 go build -o /weblab .
 
-CMD ["/usr/local/bin/weblab"]
+FROM scratch
 
+WORKDIR /app
 
-#docker compose exec web httpd -M
+COPY --from=builder /weblab /app/weblab
+COPY index.html index.js style.css /app/
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/weblab"]

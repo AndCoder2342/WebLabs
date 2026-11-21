@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net"
 	"net/http"
-	"net/http/fcgi"
 	"slices"
 	"strconv"
 	"strings"
@@ -143,17 +141,26 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
+	})
+	mux.HandleFunc("GET /index.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.js")
+	})
+	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "style.css")
+	})
 	mux.HandleFunc("/api/check", checkHandler)
 	mux.HandleFunc("/api/results", resultsHandler)
 
-	listener, err := net.Listen("tcp", ":9000")
-	if err != nil {
-		log.Fatal(err)
+	server := &http.Server{
+		Addr:              ":8080",
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
-	defer listener.Close()
 
-	log.Println("FastCGI-сервер слушает :9000")
-	if err := fcgi.Serve(listener, mux); err != nil {
+	log.Println("HTTP-сервер слушает :8080")
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
 }
