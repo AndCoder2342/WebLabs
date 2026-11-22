@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	"math"
 	"net/http"
@@ -140,16 +141,18 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	templates, err := template.ParseFiles("web/templates/index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
+		if err := templates.ExecuteTemplate(w, "index.html", nil); err != nil {
+			http.Error(w, "не удалось сформировать страницу", http.StatusInternalServerError)
+		}
 	})
-	mux.HandleFunc("GET /index.js", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.js")
-	})
-	mux.HandleFunc("GET /style.css", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "style.css")
-	})
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 	mux.HandleFunc("/api/check", checkHandler)
 	mux.HandleFunc("/api/results", resultsHandler)
 

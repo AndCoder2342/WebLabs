@@ -11,7 +11,7 @@ FROM scratch
 WORKDIR /app
 
 COPY --from=builder /weblab /app/weblab
-COPY index.html index.js style.css /app/
+COPY web /app/web
 
 EXPOSE 8080
 
