@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "css:build": "sass --no-source-map style.scss style.css",
-    "css:watch": "sass --watch --no-source-map style.scss:style.css",
+    "css:build": "sass --no-source-map style.scss web/static/css/style.css",
+    "css:watch": "sass --watch --no-source-map style.scss:web/static/css/style.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,

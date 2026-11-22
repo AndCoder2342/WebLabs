@@ -38,9 +38,9 @@ func (r *Result) calculateHit() {
 func (r Result) validate() error {
 	if math.IsNaN(r.X) || math.IsNaN(r.Y) || math.IsNaN(r.R) || math.IsInf(r.X, 0) || math.IsInf(r.Y, 0) || math.IsInf(r.R, 0) {
 		return errors.New("поля содержат NaN или бесконечности")
-	} else if !slices.Contains([]float64{-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2}, r.X) {
+	} else if r.X < -3 || r.X > 3 {
 		return errors.New("недопустимое значение X")
-	} else if r.Y <= -5 || r.Y >= 3 {
+	} else if !slices.Contains([]float64{-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2}, r.Y) {
 		return errors.New("недопустимое значение Y")
 	} else if !slices.Contains([]float64{1, 1.5, 2, 2.5, 3}, r.R) {
 		return errors.New("недопустимое значение R")

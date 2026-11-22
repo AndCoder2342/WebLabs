@@ -96,18 +96,76 @@ function draw() {
     ctx.fillText('y: ', 40, height - 40);
 }
 
+const Y_VALUES = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2];
+const R_VALUES = [1, 1.5, 2, 2.5, 3];
+
+class YSelect {
+    constructor(container, values) {
+        const label = document.createElement('label');
+        label.htmlFor = 'y_input';
+        label.textContent = 'Координата Y';
+
+        this.select = document.createElement('select');
+        this.select.id = 'y_input';
+        this.select.name = 'y';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Выберите Y';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        this.select.appendChild(placeholder);
+
+        for (const value of values) {
+            const option = document.createElement('option');
+            option.value = String(value);
+            option.textContent = String(value);
+            this.select.appendChild(option);
+        }
+
+        this.error = document.createElement('span');
+        this.error.className = 'field-error';
+        this.error.setAttribute('aria-live', 'polite');
+
+        container.appendChild(label);
+        container.appendChild(this.select);
+        container.appendChild(this.error);
+    }
+
+    get value() {
+        return this.select.value;
+    }
+
+    set value(value) {
+        this.select.value = value;
+    }
+
+    addEventListener(type, listener) {
+        this.select.addEventListener(type, listener);
+    }
+
+    setCustomValidity(message) {
+        this.select.setCustomValidity(message);
+        this.error.textContent = message;
+    }
+}
+
 const form = document.getElementById('form');
-const y_input = document.getElementById('y_input');
+const x_input = document.getElementById('x_input');
+const y_input = new YSelect(
+    document.getElementById('y_component'),
+    Y_VALUES
+);
 const form_error = document.getElementById('form_error');
 const results_body = document.getElementById('results_body');
-const r_input = document.getElementById('r_input');
+const r_inputs = document.querySelectorAll('input[name="r"]');
 
 const sort_param = document.getElementById('sort_param');
 const sort_option = document.getElementById('sort_option');
 
 const all_points = document.getElementById('show_all_points');
 const sort_points_param = document.getElementById('sort_points_param');
-const FORM_STORAGE_KEY = 'web_lab1_form';
+const FORM_STORAGE_KEY = 'web_lab3_form';
 
 let results = [];
 let highlighted_result = null;
@@ -126,21 +184,15 @@ async function load_server_results() {
 }
 
 function save_form_state() {
-    const x_element = document.querySelector(
-        'button[name="x"][aria-pressed="true"]'
-    );
+    const r_element = get_selected_r();
 
     const form_state = {
-        x: null,
+        x: x_input.value,
         y: y_input.value,
-        r: r_input.value
+        r: r_element === null ? null : r_element.value
     };
 
-    if (x_element !== null) {
-        form_state.x = x_element.value;
-    }
-
-    localStorage.setItem(
+    sessionStorage.setItem(
         FORM_STORAGE_KEY,
         JSON.stringify(form_state)
     );
@@ -148,7 +200,7 @@ function save_form_state() {
 
 function load_form_state() {
     const saved_state =
-        localStorage.getItem(FORM_STORAGE_KEY);
+        sessionStorage.getItem(FORM_STORAGE_KEY);
 
     if (saved_state === null) {
         return;
@@ -158,56 +210,70 @@ function load_form_state() {
         const form_state =
             JSON.parse(saved_state);
 
+        x_input.value = form_state.x || '';
         y_input.value = form_state.y || '';
 
-        for (const button of x_input) {
-            button.setAttribute(
-                'aria-pressed',
-                String(button.value === form_state.x)
-            );
+        for (const checkbox of r_inputs) {
+            checkbox.checked = checkbox.value === form_state.r;
         }
-
-        r_input.value = form_state.r || '';
     } catch {
-        localStorage.removeItem(
+        sessionStorage.removeItem(
             FORM_STORAGE_KEY
         );
     }
 }
 
-function select_x(event) {
-    for (const button of x_input) {
-        button.setAttribute(
-            'aria-pressed',
-            String(button === event.currentTarget)
-        );
+function get_selected_r() {
+    const selected = Array.from(r_inputs).filter(
+        checkbox => checkbox.checked
+    );
+
+    if (selected.length !== 1) {
+        return null;
+    }
+
+    return selected[0];
+}
+
+function select_r(event) {
+    if (event.currentTarget.checked) {
+        for (const checkbox of r_inputs) {
+            if (checkbox !== event.currentTarget) {
+                checkbox.checked = false;
+            }
+        }
     }
 
     save_form_state();
     redraw_canvas();
 }
 
-const x_input = document.querySelectorAll(
-    'button[name="x"]'
-);
-
-for (const button of x_input) {
-    button.addEventListener('click', select_x);
+for (const checkbox of r_inputs) {
+    checkbox.addEventListener('change', select_r);
 }
 
-r_input.addEventListener('change', redraw_canvas);
-y_input.addEventListener('input', validate_y);
-y_input.addEventListener('input', redraw_canvas);
+x_input.addEventListener('input', validate_x);
+x_input.addEventListener('input', redraw_canvas);
+y_input.addEventListener('change', validate_y);
+y_input.addEventListener('change', redraw_canvas);
+
+function validate_x() {
+    if (x_input.value !== '' && parse_x(x_input.value) === null) {
+        x_input.setCustomValidity('X должен быть числом от −3 до 3');
+    } else {
+        x_input.setCustomValidity('');
+    }
+}
 
 function validate_y() {
     if (y_input.value !== '' && parse_y(y_input.value) === null) {
-        y_input.setCustomValidity('Y должен быть числом больше −5 и меньше 3');
+        y_input.setCustomValidity('Выберите допустимое значение Y');
     } else {
         y_input.setCustomValidity('');
     }
 }
 
-function parse_y(value) {
+function parse_number(value) {
     const normalized = value.trim().replace(',', '.');
     const number_pattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
 
@@ -215,38 +281,60 @@ function parse_y(value) {
         return null;
     }
 
-    const y = Number(normalized);
-    if (Number.isFinite(y) === false) {
+    const number = Number(normalized);
+    if (Number.isFinite(number) === false) {
         return null;
     }
 
-    if (y <= -5 || y >= 3) {
+    return number;
+}
+
+function parse_x(value) {
+    const x = parse_number(value);
+
+    if (x === null || x < -3 || x > 3) {
         return null;
     }
+
+    return x;
+}
+
+function parse_y(value) {
+    const y = parse_number(value);
+
+    if (y === null || Y_VALUES.includes(y) === false) {
+        return null;
+    }
+
     return y;
 }
 
 function get_form_values() {
-    const x_element = document.querySelector('button[name="x"][aria-pressed="true"]');
+    const x = parse_x(x_input.value);
 
-    if (x_element === null) {
-        throw new Error('Выберите координату X');
+    if (x === null) {
+        throw new Error('X должен быть числом от −3 до 3');
     }
 
     const y = parse_y(y_input.value);
 
     if (y === null) {
-        throw new Error('Y должен быть числом больше −5 и меньше 3');
+        y_input.setCustomValidity('Выберите координату Y');
+        throw new Error('Выберите координату Y');
     }
 
-    if (r_input.value === '') {
+    y_input.setCustomValidity('');
+
+    const r_element = get_selected_r();
+
+    if (r_element === null) {
         throw new Error('Выберите радиус R');
     }
 
     return {
-        x: Number(x_element.value),
+        x: x,
         y: y,
-        r: Number(r_input.value)
+        r: Number(r_element.value)
     };
 }
 
@@ -340,12 +428,14 @@ function canvas_click(event) {
         (event.clientY - rect.top) *
         canvas.height / rect.height;
 
-    if (r_input.value === '') {
+    const r_element = get_selected_r();
+
+    if (r_element === null) {
         alert('Сначала выберите радиус R');
         return;
     }
 
-    const r = Number(r_input.value);
+    const r = Number(r_element.value);
 
     let x = (canvas_x - width / 2) / scale * r;
     let y = (height / 2 - canvas_y) / scale * r;
@@ -388,7 +478,9 @@ function draw_target() {
         return;
     }
 
-    if (r_input.value === '') {
+    const r_element = get_selected_r();
+
+    if (r_element === null) {
         return;
     }
 
@@ -399,7 +491,7 @@ function draw_target() {
     const scale = Math.min(width, height) / 3;
     const canvas_x = canvas_position.x;
     const canvas_y = canvas_position.y;
-    const r = Number(r_input.value);
+    const r = Number(r_element.value);
 
     const x = Number(
         ((canvas_x - width / 2) / scale * r).toFixed(2)
@@ -502,27 +594,20 @@ function change_result_value(event) {
     const result = results[result_index];
     let new_value;
 
-    if (param === 'y') {
+    if (param === 'x') {
+        new_value = parse_x(input.value);
+    } else if (param === 'y') {
         new_value = parse_y(input.value);
     } else {
-        const normalized = input.value.trim().replace(',', '.');
-        const controls = param === 'x' ? x_input : r_input.options;
-        const number_pattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
-        new_value = Number(normalized);
-
-        if (
-            number_pattern.test(normalized) === false ||
-            Array.from(controls).some(control =>
-                control.value !== '' && Number(control.value) === new_value
-            ) === false
-        ) {
-            new_value = null;
-        }
+        const r = parse_number(input.value);
+        new_value = R_VALUES.includes(r) ? r : null;
     }
 
     if (new_value === null) {
-        if (param === 'y') {
-            alert('Y должен быть числом больше −5 и меньше 3');
+        if (param === 'x') {
+            alert('X должен быть числом от −3 до 3');
+        } else if (param === 'y') {
+            alert('Выберите допустимое значение Y');
         } else {
             alert(param.toUpperCase() + ': выберите значение из набора в форме');
         }
@@ -655,10 +740,10 @@ async function button_send_form(event) {
 form.addEventListener('submit', button_send_form);
 
 form.addEventListener('change', save_form_state);
-
-y_input.addEventListener('input', save_form_state);
+x_input.addEventListener('input', save_form_state);
 
 load_form_state();
+validate_x();
 validate_y();
 
 sort_param.addEventListener('change', render_results);

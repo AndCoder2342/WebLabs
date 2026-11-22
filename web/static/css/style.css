@@ -132,7 +132,7 @@ button {
 }
 
 button:hover,
-#r_input:hover {
+#y_input:hover {
   color: #222222;
   background-color: #e2e2e2;
   border-color: #444444;
@@ -140,7 +140,7 @@ button:hover,
 
 #form input:focus,
 #form button:focus-visible,
-#r_input:focus-visible {
+#y_input:focus-visible {
   outline: 2px solid #00a0ff;
 }
 
@@ -192,14 +192,33 @@ button:hover,
   gap: 2%;
 }
 
-button[name=x] {
-  min-width: 42px;
-  margin: 3px;
-  padding: 8px;
+.coordinate-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 12px 0;
 }
 
-button[name=x][aria-pressed=true] {
-  color: #0077bf;
-  background-color: #dceeff;
-  border-color: #0077bf;
+.coordinate-field input,
+.coordinate-field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+#r_inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#r_inputs label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-error {
+  color: orangered;
 }
