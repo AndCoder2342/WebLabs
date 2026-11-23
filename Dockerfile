@@ -1,8 +1,10 @@
 FROM golang:1.27.2 AS builder
 
 WORKDIR /src
-COPY go.mod ./
+COPY go.mod go.sum ./
+RUN go mod download
 COPY *.go ./
+COPY migrations ./migrations
 
 RUN CGO_ENABLED=0 go build -o /weblab .
 

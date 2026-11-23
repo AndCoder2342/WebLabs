@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,11 +10,13 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Result struct {
@@ -24,8 +28,10 @@ type Result struct {
 	ExecutionTimeMS float64 `json:"execution_time_ms"`
 }
 
-var results = make([]Result, 0)
-var resultsMu sync.Mutex
+//go:embed migrations/001_create_results.sql
+var resultsMigration string
+
+var database *pgxpool.Pool
 
 func (r *Result) calculateHit() {
 	inTriangle := r.X <= 0 && r.Y <= 0 && r.X+r.Y >= -r.R
@@ -107,9 +113,15 @@ func checkHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	resultsMu.Lock()
-	results = append(results, result)
-	resultsMu.Unlock()
+	_, err = database.Exec(r.Context(), `
+		INSERT INTO results (x, y, r, hit, timestamp, execution_time_ms)
+		VALUES ($1, $2, $3, $4, $5, $6)
+	`, result.X, result.Y, result.R, result.Hit, result.Timestamp, result.ExecutionTimeMS)
+	if err != nil {
+		log.Println("ошибка сохранения результата:", err)
+		http.Error(w, "не удалось сохранить результат", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(resultJSON); err != nil {
@@ -125,9 +137,42 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	resultsMu.Lock()
+	rows, err := database.Query(r.Context(), `
+		SELECT x, y, r, hit, timestamp, execution_time_ms
+		FROM results
+		ORDER BY id
+	`)
+	if err != nil {
+		log.Println("ошибка чтения истории:", err)
+		http.Error(w, "не удалось загрузить историю", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	results := make([]Result, 0)
+	for rows.Next() {
+		var result Result
+		if err := rows.Scan(
+			&result.X,
+			&result.Y,
+			&result.R,
+			&result.Hit,
+			&result.Timestamp,
+			&result.ExecutionTimeMS,
+		); err != nil {
+			log.Println("ошибка чтения результата:", err)
+			http.Error(w, "не удалось загрузить историю", http.StatusInternalServerError)
+			return
+		}
+		results = append(results, result)
+	}
+	if err := rows.Err(); err != nil {
+		log.Println("ошибка чтения истории:", err)
+		http.Error(w, "не удалось загрузить историю", http.StatusInternalServerError)
+		return
+	}
+
 	resultsJSON, err := json.Marshal(results)
-	resultsMu.Unlock()
 	if err != nil {
 		http.Error(w, "не удалось сформировать историю", http.StatusInternalServerError)
 		return
@@ -141,6 +186,25 @@ func resultsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		databaseURL = "postgres://weblab:weblab@localhost:5432/weblab?sslmode=disable"
+	}
+
+	var err error
+	database, err = pgxpool.New(context.Background(), databaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
+
+	if err := database.Ping(context.Background()); err != nil {
+		log.Fatal(err)
+	}
+	if _, err := database.Exec(context.Background(), resultsMigration); err != nil {
+		log.Fatal(err)
+	}
+
 	templates, err := template.ParseFiles("web/templates/index.html")
 	if err != nil {
 		log.Fatal(err)
