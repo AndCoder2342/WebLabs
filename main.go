@@ -28,17 +28,16 @@ type Result struct {
 	ExecutionTimeMS float64 `json:"execution_time_ms"`
 }
 
-//go:embed migrations/001_create_results.sql
+//go:embed archive/dots.sql
 var resultsMigration string
 
 var database *pgxpool.Pool
 
 func (r *Result) calculateHit() {
-	inTriangle := r.X <= 0 && r.Y <= 0 && r.X+r.Y >= -r.R
-	inRectangle := r.X >= 0 && r.X <= r.R/2 && r.Y <= 0 && r.Y >= -r.R
-	inCircle := r.X <= 0 && r.Y >= 0 && r.X*r.X+r.Y*r.Y <= (r.R/2)*(r.R/2)
-	r.Hit = inTriangle || inRectangle || inCircle
-	//return inTriangle || inRectangle || inCircle
+	inSquare := r.X >= 0 && r.X <= r.R && r.Y >= 0 && r.Y <= r.R
+	inTriangle := r.X >= -r.R/2 && r.X <= 0 && r.Y >= 0 && r.Y <= 2*r.X+r.R
+	inCircle := r.X >= 0 && r.Y <= 0 && r.X*r.X+r.Y*r.Y <= (r.R/2)*(r.R/2)
+	r.Hit = inSquare || inTriangle || inCircle
 }
 
 func (r Result) validate() error {

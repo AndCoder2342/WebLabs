@@ -13,14 +13,21 @@ function draw() {
     ctx.lineJoin = 'round';
     ctx.setLineDash([]);
 
+    ctx.fillRect(width / 2, height / 2 - r, r, r);
+    ctx.strokeRect(width / 2, height / 2 - r, r, r);
+
     ctx.beginPath();
-    ctx.moveTo(width / 2 - r, height / 2);
-    ctx.lineTo(width / 2 - r / 2, height / 2);
-    ctx.arc(width / 2, height / 2, r / 2, Math.PI, Math.PI * 1.5);
+    ctx.moveTo(width / 2 - r / 2, height / 2);
     ctx.lineTo(width / 2, height / 2);
+    ctx.lineTo(width / 2, height / 2 - r);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(width / 2, height / 2);
     ctx.lineTo(width / 2 + r / 2, height / 2);
-    ctx.lineTo(width / 2 + r / 2, height / 2 + r);
-    ctx.lineTo(width / 2, height / 2 + r);
+    ctx.arc(width / 2, height / 2, r / 2, 0, Math.PI / 2);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -339,13 +346,25 @@ function get_form_values() {
 }
 
 function is_point_inside(x, y, r) {
-    const in_triangle = x <= 0 && y <= 0 && x + y >= -r;
+    const in_square = x >= 0 && x <= r && y >= 0 && y <= r;
 
-    const in_rectangle = x >= 0 && x <= r / 2 && y <= 0 && y >= -r;
+    const in_triangle = x >= -r / 2 && x <= 0 && y >= 0 && y <= 2 * x + r;
 
-    const in_circle = x <= 0 && y >= 0 && x * x + y * y <= (r / 2) ** 2;
+    const in_circle = x >= 0 && y <= 0 && x * x + y * y <= (r / 2) ** 2;
 
-    return in_triangle || in_rectangle || in_circle;
+    return in_square || in_triangle || in_circle;
+}
+
+function find_nearest_y(value) {
+    let nearest = Y_VALUES[0];
+
+    for (const allowed_y of Y_VALUES) {
+        if (Math.abs(allowed_y - value) < Math.abs(nearest - value)) {
+            nearest = allowed_y;
+        }
+    }
+
+    return nearest;
 }
 
 function redraw_canvas() {
@@ -413,7 +432,9 @@ function drawDots(result, radius = 5) {
     ctx.restore();
 }
 
-function canvas_click(event) {
+async function canvas_click(event) {
+    form_error.textContent = '';
+
     const canvas = document.getElementById('canvas');
     const rect = canvas.getBoundingClientRect();
     const width = canvas.width;
@@ -431,31 +452,39 @@ function canvas_click(event) {
     const r_element = get_selected_r();
 
     if (r_element === null) {
-        alert('Сначала выберите радиус R');
+        form_error.textContent = 'Сначала выберите радиус R';
         return;
     }
 
     const r = Number(r_element.value);
 
     let x = (canvas_x - width / 2) / scale * r;
-    let y = (height / 2 - canvas_y) / scale * r;
+    const raw_y = (height / 2 - canvas_y) / scale * r;
 
     x = Number(x.toFixed(2));
-    y = Number(y.toFixed(2));
+    const y = find_nearest_y(raw_y);
 
     if (Object.is(x, -0)) {
         x = 0;
     }
 
-    if (Object.is(y, -0)) {
-        y = 0;
+    if (parse_x(String(x)) === null) {
+        form_error.textContent = 'X должен быть числом от −3 до 3';
+        return;
     }
 
-    alert(
-        'Координаты точки:\n' +
-        'X = ' + x + '\n' +
-        'Y = ' + y
-    );
+    x_input.value = String(x);
+    y_input.value = String(y);
+    validate_x();
+    validate_y();
+    save_form_state();
+    redraw_canvas();
+
+    try {
+        await send_point_to_server({x: x, y: y, r: r});
+    } catch (error) {
+        form_error.textContent = error.message;
+    }
 }
 
 function canvas_target(event) {
@@ -709,32 +738,34 @@ async function button_send_form(event) {
 
     try {
         const values = get_form_values();
-
-        const body = new URLSearchParams({
-            x: String(values.x),
-            y: String(values.y),
-            r: String(values.r)
-        });
-
-        const response = await fetch('/api/check', {
-            method: 'POST',
-            body: body
-        });
-
-        if (!response.ok) {
-            const message = await response.text();
-            throw new Error(message);
-        }
-
-        const result = await response.json();
-
-        results.push(result);
-        render_results();
+        await send_point_to_server(values);
     } catch (error) {
         form_error.textContent = error.message;
     } finally {
         submit_button.disabled = false;
     }
+}
+
+async function send_point_to_server(values) {
+    const body = new URLSearchParams({
+        x: String(values.x),
+        y: String(values.y),
+        r: String(values.r)
+    });
+
+    const response = await fetch('/api/check', {
+        method: 'POST',
+        body: body
+    });
+
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message);
+    }
+
+    const result = await response.json();
+    results.push(result);
+    render_results();
 }
 
 form.addEventListener('submit', button_send_form);
