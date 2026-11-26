@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS users (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(32) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+    token VARCHAR(64) PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expires_at BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS results (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    x DOUBLE PRECISION NOT NULL,
+    y DOUBLE PRECISION NOT NULL,
+    r DOUBLE PRECISION NOT NULL,
+    hit BOOLEAN NOT NULL,
+    timestamp BIGINT NOT NULL,
+    execution_time_ms DOUBLE PRECISION NOT NULL
+);
+
+ALTER TABLE results
+    ADD COLUMN IF NOT EXISTS user_id BIGINT REFERENCES users(id) ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS sessions_user_id_index ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS results_user_id_index ON results(user_id);

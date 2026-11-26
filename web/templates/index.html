@@ -10,6 +10,13 @@
 <body>
   <header>
       <h1 class="cap" id="variant">Сафин Илья Дмитриевич P3206 Вариант: 777 <a class="small-cap" href="https://github.com/AndCoder2342/WebLabs">GitHub</a></h1>
+      <div class="user-panel">
+          <span>Пользователь: {{.User.Username}}</span>
+          {{if .User.IsAdmin}}<span class="admin-badge">Администратор</span>{{end}}
+          <form action="/logout" method="post">
+              <button type="submit">Выйти</button>
+          </form>
+      </div>
   </header>
   <main>
       <div class="workspace">

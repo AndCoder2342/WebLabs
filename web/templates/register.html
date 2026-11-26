@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="auth-page">
+<main class="auth-card">
+    <h1>Регистрация</h1>
+    {{if .Error}}<p class="auth-error">{{.Error}}</p>{{end}}
+    <form action="/register" method="post">
+        <label for="username">Логин</label>
+        <input id="username" name="username" type="text" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_]+" autocomplete="username">
+
+        <label for="password">Пароль</label>
+        <input id="password" name="password" type="password" required minlength="6" maxlength="72" autocomplete="new-password">
+
+        <label for="password_repeat">Повторите пароль</label>
+        <input id="password_repeat" name="password_repeat" type="password" required minlength="6" maxlength="72" autocomplete="new-password">
+
+        <button type="submit">Создать аккаунт</button>
+    </form>
+    <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+</main>
+</body>
+</html>
